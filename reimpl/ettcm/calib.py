@@ -28,7 +28,10 @@ class Camera:
 
 
 def read_calibration(path):
-    vals = np.loadtxt(path).ravel()
+    # Read all numbers regardless of line layout (VL's calib.txt has 9 values on
+    # the first line and "width height" on the second), like the C++ `fin >>`.
+    with open(path) as f:
+        vals = np.array(f.read().split(), dtype=np.float64)
     fx, fy, cx, cy = vals[:4]
     dist = vals[4:9]
     width, height = int(vals[9]), int(vals[10])
