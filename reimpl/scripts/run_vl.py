@@ -1,4 +1,4 @@
-"""M4: Table 2 with your implementation on the VL dataset.
+"""Table 2 of the paper with our implementation, on the Ventral Landing (VL) dataset.
 
 Unzip VL.zip (https://figshare.com/ndownloader/files/44987794) so that
     datasets/VL/calib.txt
@@ -8,13 +8,9 @@ Unzip VL.zip (https://figshare.com/ndownloader/files/44987794) so that
     python scripts/run_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
 
 Each line prints our REE next to the paper's Table 2 number for that sequence.
-Models: scaling, translation, six_dof_param (= the official/paper 6-DOF),
-six_dof (plain Eq. 9 6-DOF, not in the paper's table).
-
-Compare with the official binary (same data, same hyper-parameters):
-    ./build/src/global_divergence_translation datasets/VL/2D-1/events.es \
-        datasets/VL/calib.txt datasets/VL/2D-1/divergence.txt \
-        datasets/VL/2D-1/timestamps.txt -s 2 -e 0.01 -m 1000 -l 1
+Models: scaling, translation, six_dof (the official re-parameterised 6-DOF, which
+is what the paper's 6-DOF rows were computed with). Settings are those of the
+official script table_2_results.sh: -e 0.01 -m 1000 -l 1, s in {2, 3}.
 """
 import argparse
 import glob
@@ -41,18 +37,15 @@ PAPER_REE = {
     ("translation", 3): [11.15, 7.01, 7.98, 13.80, 6.37, 11.17, 4.55, 12.46, 9.31],
     ("six_dof", 3):     [6.51, 6.81, 7.25, 6.77, 6.06, 5.59, 6.18, 6.19, 6.42],
 }
-# The paper's 6-DOF rows were produced by the official ParameterizedSixDOF model.
-PAPER_REE[("six_dof_param", 2)] = PAPER_REE[("six_dof", 2)]
-PAPER_REE[("six_dof_param", 3)] = PAPER_REE[("six_dof", 3)]
-ALL_MODELS = ["scaling", "translation", "six_dof_param", "six_dof"]
+ALL_MODELS = ["scaling", "translation", "six_dof"]
 
 
-def run_one(seq_dir, cam, model, s, l_theta, fast_exp=True):
+def run_one(seq_dir, cam, model, s):
     ev, w, h, ts, div_gt = read_vl_sequence(seq_dir)
     ev, xr, yr = rectify_events(ev, cam)
     t0 = time.perf_counter()
-    out = run_ettcm(ev, xr, yr, cam, MODEL_IDS[model], s=s, l_theta=l_theta,
-                    fast_exp=fast_exp)
+    out = run_ettcm(ev, xr, yr, cam, MODEL_IDS[model], s=s, w_thresh=0.01,
+                    l_theta=1000.0, l_rho=1.0)
     us = 1e6 * (time.perf_counter() - t0) / len(ev)
     ree, _, _ = ree_at_timestamps(ev["t"], out["div"], out["rho"], ts, div_gt)
     return ree, us, len(ev)
@@ -61,39 +54,34 @@ def run_one(seq_dir, cam, model, s, l_theta, fast_exp=True):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
-    ap.add_argument("--model", default="translation", choices=list(MODEL_IDS))
-    ap.add_argument("-s", type=int, default=2)
-    ap.add_argument("--l-theta", type=float, default=1000.0)
-    ap.add_argument("--all", action="store_true",
-                    help="all models x s in {2,3} (six_dof_param = the paper's 6-DOF)")
-    ap.add_argument("--exact-exp", action="store_true",
-                    help="use exact exp() instead of the official fast approximation")
+    ap.add_argument("--model", default="translation", choices=ALL_MODELS)
+    ap.add_argument("-s", type=int, default=2, choices=(2, 3))
+    ap.add_argument("--all", action="store_true", help="all 3 models x s in {2, 3}")
     ap.add_argument("--csv", default=None, help="append results to this CSV file")
     args = ap.parse_args()
 
     cam = make_camera(os.path.join(args.data, "calib.txt"))
     seqs = sorted(d for d in glob.glob(os.path.join(args.data, "*"))
                   if os.path.isfile(os.path.join(d, "events.es")))
-    combos = ([(m, s) for s in (2, 3) for m in ALL_MODELS] if args.all
+    combos = ([(m, s) for m in ALL_MODELS for s in (2, 3)] if args.all
               else [(args.model, args.s)])
     csv = open(args.csv, "a") if args.csv else None
     for model, s in combos:
         print(f"Model: {model}  s={s}")
         print(f"  {'seq':6s} {'ours':>7s} {'paper':>7s}   {'us/event':>8s}")
         rees = []
-        paper = PAPER_REE.get((model, s))
+        paper = PAPER_REE[(model, s)]
         for d in seqs:
             name = os.path.basename(d)
-            ree, us, n = run_one(d, cam, model, s, args.l_theta, not args.exact_exp)
+            ree, us, n = run_one(d, cam, model, s)
             rees.append(ree)
-            ref = (f"{paper[SEQS.index(name)]:7.2f}" if paper and name in SEQS
-                   else "      -")
+            ref = f"{paper[SEQS.index(name)]:7.2f}" if name in SEQS else "      -"
             print(f"  {name:6s} {ree:7.2f} {ref}   {us:8.2f}   ({n} events)", flush=True)
             if csv:
                 csv.write(f"{model},{s},{name},{ree:.4f},{us:.3f},{n}\n")
                 csv.flush()
         avg = sum(rees) / len(rees)
-        ref = (f"{paper[-1]:7.2f}" if paper and len(rees) == len(SEQS) else "      -")
+        ref = f"{paper[-1]:7.2f}" if len(rees) == len(SEQS) else "      -"
         print(f"  {'avg':6s} {avg:7.2f} {ref}")
 
 

@@ -7,11 +7,11 @@ The method processes events one at a time and jointly estimates the camera's glo
 - Paper: [CVF Open Access](https://openaccess.thecvf.com/content/ICCV2023/html/Nunes_Time-to-Contact_Map_by_Joint_Estimation_of_Up-to-Scale_Inverse_Depth_and_ICCV_2023_paper.html)
 - Official C++ code: [neuromorphic-paris/ETTCM](https://github.com/neuromorphic-paris/ETTCM) (CC BY-NC-SA 4.0, not included in this repo)
 
-## Goals
+## Status
 
-1. Build and run the official C++ code and reproduce Table 2 (Ventral Landing dataset).
-2. Write my own implementation in Python + NumPy (+ Numba for speed) that matches the official code per event.
-3. Go beyond the official repo: TTC maps and MVSEC optical-flow evaluation.
+**Table 2 of the paper (Ventral Landing dataset) is reproduced** with this Python implementation:
+every average within 0.1 of the paper, at about 1 µs per event. The code matches the official
+C++ event by event (to ~1e-7 against a double-precision build). Details in [`RESULTS.md`](RESULTS.md).
 
 ## Repository layout
 
@@ -24,11 +24,11 @@ reimpl/
     linalg.py       small Cholesky solve
     models.py       motion models: Scaling, Translation, 6-DOF (B matrix, Eq. 9)
     estimator.py    per-event estimator
-    synthetic.py    approaching textured plane with exact ground truth
     evaluate.py     REE metric (Eq. 12), VL loader
-  scripts/          run_synthetic.py, run_vl.py
+    _jit.py         optional Numba JIT
+  scripts/run_vl.py Table 2 on VL, prints our numbers next to the paper's
   tests/            test_io.py, test_models.py
-  cpp/harness.cpp   per-event output of the official C++ core, for comparison
+RESULTS.md          Table 2: paper vs official code vs this implementation
 sources/links.txt   paper, code, dataset and background links
 ```
 
@@ -40,10 +40,11 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python tests/test_io.py
 python tests/test_models.py
-python scripts/run_synthetic.py --model scaling --duration 0.4
+unzip -n ../VL.zip -d ../datasets       # VL dataset, see below
+python scripts/run_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
 ```
 
-Setup details, milestone commands and implementation notes are in [`reimpl/README.md`](reimpl/README.md).
+Implementation notes (including details needed to match the official code) are in [`reimpl/README.md`](reimpl/README.md).
 
 ## Datasets (not stored in this repo)
 
@@ -62,13 +63,11 @@ Baseline ECMD: 8.92 %. Runtime for Translation, s = 2: about 1.15 µs/event.
 
 ## Roadmap
 
-- [x] Resources, notes and starter kit
-- [ ] Build the official code and run Table 2 on VL
-- [ ] M1: Scaling model on synthetic data
-- [ ] M2: Translation and 6-DOF models
-- [ ] M3: match the official C++ per event
-- [ ] M4: reproduce Table 2 on VL
-- [ ] M5: TTC maps and MVSEC optical flow
+- [x] Build the official code and reproduce Table 2 on VL
+- [x] Own implementation: Scaling, Translation and 6-DOF models
+- [x] Match the official C++ per event
+- [x] Reproduce Table 2 on VL with the own implementation
+- [ ] TTC maps and MVSEC optical flow (Tables 3–5; not in the official code)
 
 ## Citation
 

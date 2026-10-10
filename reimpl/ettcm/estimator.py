@@ -29,7 +29,7 @@ import numpy as np
 from ._jit import njit
 from .decay import decay_step
 from .linalg import cholesky_solve
-from .models import (SIX_DOF_PARAM, b_matrix, b_matrix_code6, b_matrix_param,
+from .models import (SIX_DOF, b_matrix, b_matrix_code6, b_matrix_param,
                      n_v, n_vars)
 
 _TWO52 = 4503599627370496.0  # 2**52
@@ -243,10 +243,12 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     """6-DOF with the official re-parameterisation (ParameterizedSixDOF).
 
     Same five steps as _run, written in the official code's sign convention
-    (see models.b_matrix_param). Two details are kept exactly as in the C++,
-    including the d/d(lambda) Jacobian column, which there is NOT multiplied
-    by -dt (global_motion_inverse_depth.hpp, ParameterizedSixDOF branch).
-    Outputs are converted to the paper convention.
+    (see models.b_matrix_param). The Gauss-Newton Jacobian is copied exactly
+    from the C++ (ParameterizedSixDOF::jacobian and the d/d(lambda) column in
+    global_motion_inverse_depth.hpp), even though it does not match the model's
+    own derivative (e.g. the lambda column is not multiplied by -dt): the
+    paper's numbers were produced with it. Outputs are converted to the paper
+    convention.
     """
     nm = 7
     ctx_t = np.full((2, height, width), -1.0)
@@ -434,7 +436,7 @@ def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
             cam.width, cam.height, cam.fx, cam.fy, cam.cx, cam.cy)
     hyper = (int(s), float(w_thresh), float(l_theta), float(l_rho), int(n_iter),
              float(d_min), bool(fast_exp), out_rho, out_vx, out_vy, out_div, out_theta)
-    if model == SIX_DOF_PARAM:
+    if model == SIX_DOF:
         _run_param(*args, *hyper)
     else:
         _run(*args, model, *hyper)

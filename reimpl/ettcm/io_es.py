@@ -84,7 +84,7 @@ def read_es(path):
 
 
 def write_es(path, events, width, height):
-    """Write a DVS .es file (useful for feeding synthetic data to the C++ code)."""
+    """Write a DVS .es file (used by tests/test_io.py)."""
     out = bytearray(SIGNATURE)
     out += bytes([2, 0, 0, 1])
     out += int(width).to_bytes(2, "little") + int(height).to_bytes(2, "little")

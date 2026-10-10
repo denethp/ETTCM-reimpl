@@ -2,7 +2,7 @@
 
 `njit` compiles with Numba when it is installed, otherwise it is a no-op so the
 code still runs (slowly) in plain Python. Debug in plain Python first:
-    ETTCM_NO_JIT=1 python scripts/run_synthetic.py
+    ETTCM_NO_JIT=1 python scripts/run_vl.py ...
 """
 import os
 

@@ -1,6 +1,6 @@
-"""Checks your B matrix (Eq. 9) against brute-force projection of a moving 3D point.
+"""Checks the B matrices (Eq. 9) against brute-force projection of a moving 3D point.
 
-Run:  python -m pytest -q tests    (or: python tests/test_models.py)
+Run:  python tests/test_models.py   (or: python -m pytest -q tests)
 
 Physics: camera with linear velocity nu and angular velocity omega (camera frame).
 A static world point P (camera coordinates) moves as  dP/dt = -nu - omega x P.
@@ -14,7 +14,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from ettcm.models import SCALING, SIX_DOF, TRANSLATION, b_matrix, n_vars  # noqa: E402
+from ettcm.models import SCALING, TRANSLATION, b_matrix, b_matrix_param, n_vars  # noqa: E402
 
 FX, FY, CX, CY = 320.0, 300.0, 160.0, 120.0
 
@@ -54,18 +54,26 @@ def test_translation():
 
 
 def test_six_dof():
+    """Official re-parameterised 6-DOF (code sign: theta_code = -theta_paper).
+
+    Unknowns m = (rho*nu_x + w_y, rho*nu_y - w_x, nu_z, w_x, w_y, w_z) in code
+    sign; B_param(p, rho) @ m must give the same image velocity as the physics.
+    """
     rng = np.random.default_rng(2)
     for _ in range(20):
         P = np.array([rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(1, 5)])
         nu, om = rng.uniform(-1, 1, 3), rng.uniform(-1, 1, 3)
-        np.testing.assert_allclose(model_flow(SIX_DOF, P, np.r_[nu, om]),
-                                   numeric_flow(P, nu, om), rtol=1e-5, atol=1e-5)
+        rho = 1.0 / P[2]
+        nc, wc = -nu, -om                      # code sign
+        m = np.array([rho * nc[0] + wc[1], rho * nc[1] - wc[0], nc[2], wc[0], wc[1], wc[2]])
+        x, y = project(P)
+        B = np.zeros((2, 7))
+        b_matrix_param(x - CX, y - CY, FX, FY, rho, B)
+        np.testing.assert_allclose(B[:, :6] @ m, numeric_flow(P, nu, om),
+                                   rtol=1e-5, atol=1e-5)
 
 
 if __name__ == "__main__":
     for f in (test_scaling, test_translation, test_six_dof):
-        try:
-            f()
-            print("PASS", f.__name__)
-        except NotImplementedError as e:
-            print("TODO", f.__name__, "-", e)
+        f()
+        print("PASS", f.__name__)
