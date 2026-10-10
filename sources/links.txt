@@ -1,0 +1,98 @@
+ETTCM RE-IMPLEMENTATION: RESOURCES
+Paper: "Time-to-Contact Map by Joint Estimation of Up-to-Scale Inverse Depth and Global Motion
+        using a Single Event Camera", U. M. Nunes, L. U. Perrinet, S.-H. Ieng, ICCV 2023
+Last updated: 2026-10-10
+
+=====================================================================
+1. THE PAPER ITSELF
+=====================================================================
+Paper (CVF Open Access page) - https://openaccess.thecvf.com/content/ICCV2023/html/Nunes_Time-to-Contact_Map_by_Joint_Estimation_of_Up-to-Scale_Inverse_Depth_and_ICCV_2023_paper.html
+Paper PDF - https://openaccess.thecvf.com/content/ICCV2023/papers/Nunes_Time-to-Contact_Map_by_Joint_Estimation_of_Up-to-Scale_Inverse_Depth_and_ICCV_2023_paper.pdf
+Supplementary material PDF - https://openaccess.thecvf.com/content/ICCV2023/supplemental/Nunes_Time-to-Contact_Map_by_ICCV_2023_supplemental.pdf
+ML Anthology entry (BibTeX) - https://mlanthology.org/iccv/2023/nunes2023iccv-timetocontact
+
+=====================================================================
+2. OFFICIAL CODE (C++ / CMake / Eigen / OpenCV)
+=====================================================================
+Github (official ETTCM code) - https://github.com/neuromorphic-paris/ETTCM
+  Local copy: code/ETTCM.zip
+  - include/ETTCM/global_motion_inverse_depth.hpp  -> core method (joint inverse depth + global motion)
+  - include/ETTCM/motion_model.hpp                 -> Translation / Scaling / 6-DOF models
+  - include/ETTCM/global_decay.hpp, leaky_sampling.hpp -> adaptive global decay (event batching)
+  - src/global_divergence_*.cpp                    -> Table 2 (VL dataset) experiments
+  - table_2_*.sh / table_6_*.sh                    -> reproduction scripts
+  - Tested on Ubuntu 20.04 (on Windows use WSL2 or the Dockerfile)
+  - License: CC BY-NC-SA 4.0 (non-commercial)
+Dockerfile - https://github.com/neuromorphic-paris/ETTCM/blob/master/Dockerfile
+Eigen (pinned commit 27367017bd0aef15a67ce76b8e263a94c2508a1c) - https://gitlab.com/libeigen/eigen
+OpenCV (pinned commit 82ac7ea23620fb13b7b6be225fa1b0e848f5e72d) - https://github.com/opencv/opencv
+opencv_contrib (pinned commit c4027ab7f912a3053175477d41b1a62d0078bc5f) - https://github.com/opencv/opencv_contrib
+OpenCV Linux install guide - https://docs.opencv.org/trunk/d7/d9f/tutorial_linux_install.html
+
+Github (Adaptive Global Decay, CVPR 2023, ref [31]; used for event batching in ETTCM) - https://github.com/neuromorphic-paris/event_batch
+  Local copy: code/event_batch.zip
+Github (Entropy Minimisation EMin, ECCV 2020, ref [32]; predecessor of the DMin framework) - https://github.com/ImperialCollegeLondon/event_emin_ros
+  Local copy: code/event_emin_ros.zip
+Github (neuromorphic-paris org: tonic, loris, tarsier, sepia event I/O tools) - https://github.com/neuromorphic-paris
+
+=====================================================================
+3. DATASETS
+=====================================================================
+--- Ventral Landing (VL) dataset [28]: TTC / divergence benchmark (Table 2) ---
+VL sequences used by ETTCM (figshare, ~104 MB) - https://figshare.com/ndownloader/files/44987794
+Table 2 complete data (unzip into ETTCM "datasets" folder) - https://spik.xyz/nc/index.php/s/ER6GMim9qPQRxaF
+Github (original VL dataset repo, S. McLeod) - https://github.com/s-mcleod/ventral-landing-event-dataset
+VL entire event streams (Google Drive) - https://drive.google.com/drive/folders/14_KwWMmmpYtOZUYa4m3QlQQ9Bn7S0fDD?usp=sharing
+VL ECMD-format 0.5 s batches + GT divergence (Google Drive) - https://drive.google.com/drive/folders/1I26pwHQLJlkpWzxHNkFDNj4yRmihmxjL?usp=sharing
+  Prophesee camera at 1280x720, 7 planar (Surf2D-1..7) + 1 3D (Surf3D) sequence, 15 s each
+
+--- MVSEC [50]: optical flow benchmark (Tables 4 and 5) ---
+MVSEC website - https://daniilidis-group.github.io/mvsec/
+MVSEC download page - https://daniilidis-group.github.io/mvsec/download/
+MVSEC HDF5 files (Google Drive) - https://drive.google.com/open?id=1rwyRk26wtWeRgrAx_fgPc-ubUzTFThkV
+MVSEC optical flow GT (.npz, *_gt_flow_dist) (Google Drive) - https://drive.google.com/drive/u/2/folders/1XS0AQTuCwUaWOmtjyJWRHkbXjj_igJLp
+Github (MVSEC tools, incl. GT-flow generation) - https://github.com/daniilidis-group/mvsec
+Github (GT flow generation code) - https://github.com/daniilidis-group/mvsec/tree/master/tools/gt_flow
+indoor_flying1 data bag - https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying1_data.bag
+indoor_flying1 gt bag - https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying1_gt.bag
+indoor_flying2 data bag - https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying2_data.bag
+indoor_flying2 gt bag - https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying2_gt.bag
+indoor_flying3 data bag - https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying3_data.bag
+indoor_flying3 gt bag - https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying3_gt.bag
+outdoor_day1 data bag - https://visiondata.cis.upenn.edu/mvsec/outdoor_day/outdoor_day1_data.bag
+outdoor_day1 gt bag - https://visiondata.cis.upenn.edu/mvsec/outdoor_day/outdoor_day1_gt.bag
+  DAVIS 346x260. Evaluation uses dt=1 and dt=4 frames (EV-FlowNet protocol)
+
+--- Event Camera Dataset (ECD) [30]: "slider_depth" used for qualitative figures ---
+ECD website (RPG, UZH) - https://rpg.ifi.uzh.ch/davis_data.html
+ECD paper (arXiv) - https://arxiv.org/abs/1610.08336
+
+=====================================================================
+4. KEY BACKGROUND PAPERS (read these to understand the method)
+=====================================================================
+DMin: Robust Event-Based Vision Model Estimation by Dispersion Minimisation (TPAMI 2022) [34]: the framework ETTCM extends
+  Live demo paper (CVPRW 2021) - https://openaccess.thecvf.com/content/CVPR2021W/EventVision/papers/Nunes_Live_Demonstration_Incremental_Motion_Estimation_for_Event-Based_Cameras_by_Dispersion_CVPRW_2021_paper.pdf
+  Imperial repository record - https://spiral.imperial.ac.uk/entities/publication/84f9d1d4-489c-4de2-8ab6-4b9e28247d41
+EMin: Entropy Minimisation Framework (ECCV 2020) [32]
+  Paper - https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123500154.pdf
+  Supplementary - https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123500154-supp.pdf
+Adaptive Global Decay Process for Event Cameras (CVPR 2023) [31]
+  Paper page - https://openaccess.thecvf.com/content/CVPR2023/html/Nunes_Adaptive_Global_Decay_Process_for_Event_Cameras_CVPR_2023_paper.html
+  Supplementary - https://openaccess.thecvf.com/content/CVPR2023/supplemental/Nunes_Adaptive_Global_Decay_CVPR_2023_supplemental.pdf
+ECMD: Globally Optimal Event-Based Divergence Estimation for Ventral Landing (ECCVW 2022) [28]: main TTC baseline
+  arXiv - https://arxiv.org/abs/2209.13168
+Asynchronous Visual Event-based Time-to-Contact (Clady et al., Frontiers 2014) [10]
+  Paper - https://www.frontiersin.org/articles/10.3389/fnins.2014.00009/full
+Event Collapse in Contrast Maximization Frameworks (Shiba et al. 2022) [40]
+  arXiv - https://arxiv.org/abs/2207.04007
+Secrets of Event-Based Optical Flow (Shiba et al., ECCV 2022) [42]: optical-flow baseline
+  arXiv - https://arxiv.org/abs/2207.10022
+  Github - https://github.com/tub-rip/event_based_optical_flow
+EV-FlowNet (Zhu et al., RSS 2018) [51]: MVSEC flow GT and evaluation protocol
+  arXiv - https://arxiv.org/abs/1802.06898
+MVSEC paper (Zhu et al., RA-L 2018) [50]
+  arXiv - https://arxiv.org/abs/1801.10202
+E-RAFT (Gehrig et al., 3DV 2021) [17]
+  arXiv - https://arxiv.org/abs/2108.10552
+Event-Based Vision: A Survey (Gallego et al., TPAMI) [13]: general background
+  arXiv - https://arxiv.org/abs/1904.08405
