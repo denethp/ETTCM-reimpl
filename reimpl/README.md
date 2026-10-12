@@ -2,7 +2,8 @@
 
 Own implementation of Nunes, Perrinet, Ieng, *Time-to-Contact Map by Joint Estimation of
 Up-to-Scale Inverse Depth and Global Motion using a Single Event Camera*, ICCV 2023.
-It reproduces the paper's Table 2 on the Ventral Landing (VL) dataset; see `../RESULTS.md`.
+It reproduces the paper's Table 2 on the Ventral Landing (VL) dataset (see `../RESULTS.md`)
+and runs the MVSEC experiments (Tables 3–5, Figs. 5–6), which the official code does not include.
 
 ## Layout
 
@@ -12,13 +13,18 @@ It reproduces the paper's Table 2 on the Ventral Landing (VL) dataset; see `../R
 | `ettcm/calib.py` | `calib.txt` + rectification map, like the official `rectify.hpp` |
 | `ettcm/decay.py` | adaptive global decay: activity a(t) of Eq. 11 + divergence decay |
 | `ettcm/linalg.py` | small Cholesky solve (Eigen LLT equivalent) |
-| `ettcm/models.py` | B matrix of Eq. 9: Scaling, Translation, and the official re-parameterised 6-DOF |
-| `ettcm/estimator.py` | per-event estimator: `_run` (Scaling, Translation), `_run_param` (6-DOF) |
+| `ettcm/models.py` | B matrix of Eq. 9: Scaling, Translation, Driving, and the official re-parameterised 6-DOF |
+| `ettcm/estimator.py` | per-event estimator: `_run` (Scaling, Translation, Driving), `_run_param` (6-DOF); `EttcmState` to process long streams in chunks |
 | `ettcm/evaluate.py` | REE (Eq. 12) as the official benchmark computes it, VL loader |
+| `ettcm/mvsec.py` | MVSEC: calibration, streamed events, GT flow (memory-mapped), EV-FlowNet GT propagation, flow metrics, GT divergence |
 | `ettcm/_jit.py` | optional Numba JIT (falls back to plain Python) |
 | `scripts/run_vl.py` | Table 2: runs the models on VL and prints our REE next to the paper's |
+| `scripts/run_mvsec.py` | Tables 3–5 on MVSEC: flow AEE / Out / AREE / AAE and divergence AREE, next to the paper's |
+| `scripts/inspect_mvsec.py` | prints the structure of the MVSEC files (run this first) |
+| `scripts/plot_maps.py` | Fig. 5/6-style pictures: events, optical flow, TTC map (+ GT on MVSEC) |
 | `tests/test_io.py` | `.es` write/read round trip |
 | `tests/test_models.py` | B matrices checked against brute-force 3D projection |
+| `tests/test_chunks.py` | chunked processing = one run, for every model |
 
 ## Setup
 
@@ -27,7 +33,8 @@ cd reimpl
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python tests/test_io.py          # PASS
-python tests/test_models.py      # PASS x3
+python tests/test_models.py      # PASS x4
+python tests/test_chunks.py      # PASS
 ```
 
 Without Numba everything still runs, only ~300× slower. Set `ETTCM_NO_JIT=1` to force
@@ -45,6 +52,44 @@ python scripts/run_vl.py --data ../datasets/VL --all --csv ../results_python_vl.
 Models: `scaling`, `translation`, `six_dof`. Settings are those of the official script
 `table_2_results.sh`: window s ∈ {2, 3}, w_thresh = 0.01, l_theta = 1000, l_rho = 1,
 2 Gauss–Newton iterations.
+
+## MVSEC (Tables 3–5)
+
+Files under `../datasets/MVSEC/` (any sub-folders): for each of `indoor_flying1`, `indoor_flying2`,
+`indoor_flying3`, `outdoor_day1` the `_data.hdf5`, `_gt.hdf5` and `_gt_flow_dist.npz`, plus the two
+calibration zips from the MVSEC site, which hold the rectification maps and projection matrix:
+`https://visiondata.cis.upenn.edu/mvsec/indoor_flying/indoor_flying_calib.zip` and
+`https://visiondata.cis.upenn.edu/mvsec/outdoor_day/outdoor_day_calib.zip`.
+
+```bash
+python scripts/inspect_mvsec.py --data ../datasets/MVSEC                     # check the files
+python scripts/run_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation --max-seconds 5
+python scripts/run_mvsec.py --data ../datasets/MVSEC --seq all --model all --table3 --csv ../results_python_mvsec.csv
+python scripts/plot_maps.py --data ../datasets/MVSEC --seq indoor_flying1 --t 20 --out ../figures/if1.png
+```
+
+Settings from the paper: s = 3, w_thresh = 0.01, l_θ = 100, l_ρ = 1 (Table 1, Sec. 4.1).
+Models: `driving` (ν_z, ω_y with |ν_z| = 1, Sec. 4.2), `translation`, `six_dof`.
+
+How it is evaluated (the paper gives few details; these follow the standard MVSEC protocol):
+
+* **Camera.** MVSEC's GT flow is computed on the *rectified* depth image with the rectified
+  projection matrix P (`mvsec/tools/gt_flow/compute_flow.py`), despite the `_dist` file name.
+  The estimator therefore runs in that rectified camera (fx, fy, cx, cy from P, raw pixels moved
+  with the calibration x/y maps), so estimated and GT flow are in the same pixels.
+* **Time windows.** Default `--protocol paper`: the whole indoor_flying sequences and
+  outdoor_day1 from 222.4 s to 240.4 s (EV-FlowNet's test split). That is 69.9 + 84.5 + 93.7 + 18
+  = 266 s, matching the paper's "the evaluated sequences span approximately 265sec".
+  `--protocol secrets` uses the valid GT frames of tub-rip/event_based_optical_flow (463 s).
+* **Flow (Tables 4, 5).** Intervals between grayscale frames (`--dt 1`, or 4); GT displacement over each interval with
+  EV-FlowNet's `estimate_corresponding_gt_flow`; only pixels with events and non-zero GT;
+  outdoor_day1 only rows < 190 (car hood). Each event with an estimate gives m_i = Δt_frame · v_i,
+  compared with the GT at its (rectified) pixel ("we only evaluate on the respective pixel
+  locations"). Reported three ways: per event (Eq. 13–15 with N = events, default), per pixel
+  (mean estimate per pixel and interval), and the mean of per-interval values (EV-FlowNet style).
+* **Divergence (Table 3).** Per event μ̂_i = ρ_i ν_z vs GT μ = V_z / Z: Z from the GT depth map,
+  camera velocity V recovered exactly (least squares) from the GT flow of the same frame, which
+  MVSEC generated from that depth and velocity.
 
 ## How the estimator works (per event)
 

@@ -14,7 +14,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from ettcm.models import SCALING, TRANSLATION, b_matrix, b_matrix_param, n_vars  # noqa: E402
+from ettcm.models import DRIVING, SCALING, TRANSLATION, b_matrix, b_matrix_param, n_vars  # noqa: E402
 
 FX, FY, CX, CY = 320.0, 300.0, 160.0, 120.0
 
@@ -73,7 +73,18 @@ def test_six_dof():
                                    rtol=1e-5, atol=1e-5)
 
 
+def test_driving():
+    """Driving: forward speed nu_z and yaw rate w_y only (Sec. 4.2)."""
+    rng = np.random.default_rng(3)
+    for _ in range(20):
+        P = np.array([rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(1, 5)])
+        nu = np.array([0.0, 0.0, rng.uniform(-1, 1)])
+        om = np.array([0.0, rng.uniform(-1, 1), 0.0])
+        np.testing.assert_allclose(model_flow(DRIVING, P, np.r_[nu[2], om[1]]),
+                                   numeric_flow(P, nu, om), rtol=1e-5, atol=1e-5)
+
+
 if __name__ == "__main__":
-    for f in (test_scaling, test_translation, test_six_dof):
+    for f in (test_scaling, test_translation, test_six_dof, test_driving):
         f()
         print("PASS", f.__name__)

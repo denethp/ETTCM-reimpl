@@ -52,6 +52,8 @@ def run_one(seq_dir, cam, model, s):
 
 
 def main():
+    from ettcm.tee import tee_output
+    tee_output()
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
     ap.add_argument("--model", default="translation", choices=ALL_MODELS)

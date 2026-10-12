@@ -29,7 +29,7 @@ import numpy as np
 from ._jit import njit
 from .decay import decay_step
 from .linalg import cholesky_solve
-from .models import (SIX_DOF, b_matrix, b_matrix_code6, b_matrix_param,
+from .models import (DRIVING, SIX_DOF, b_matrix, b_matrix_code6, b_matrix_param,
                      n_v, n_vars)
 
 _TWO52 = 4503599627370496.0  # 2**52
@@ -60,16 +60,14 @@ def _kernel(x, use_fast_exp):
 @njit
 def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
          fx, fy, cx, cy, model, s, w_thresh, l_theta, l_rho, n_iter, d_min,
-         use_fast_exp, out_rho, out_vx, out_vy, out_div, out_theta):
+         use_fast_exp, ctx_t, ctx_w, rho_map, theta, st_f, st_i,
+         out_rho, out_vx, out_vy, out_div, out_theta):
+    # State carried between calls (see EttcmState): ctx_t, ctx_w, rho_map,
+    # theta (motion), st_f = (a, div_num, div_den), st_i = (t_last,).
     nv = n_v(model)        # number of linear-velocity params; nu_z = theta[nv - 1]
     nvar = n_vars(model)   # number of motion params
     nm = nvar + 1          # + lambda (log inverse depth)
 
-    ctx_t = np.full((2, height, width), -1.0)
-    ctx_w = np.zeros((2, height, width))
-    rho_map = np.ones((height, width))
-
-    theta = np.zeros(nvar)
     gamma = np.zeros(nm)     # current estimate (theta, lambda)
     gamma0 = np.zeros(nm)    # value at the start of this event (prior centre)
     B = np.zeros((2, 7))
@@ -83,10 +81,10 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     prior = np.full(nm, l_theta)  # L = diag(l_theta, ..., l_theta, l_rho)
     prior[nvar] = l_rho
 
-    t_last = 0
-    a = 0.0
-    div_num = 0.0
-    div_den = 0.0
+    t_last = st_i[0]
+    a = st_f[0]
+    div_num = st_f[1]
+    div_den = st_f[2]
 
     for k in range(t_us.shape[0]):
         decay, t_last, a = decay_step(t_us[k], t_last, a)
@@ -204,7 +202,8 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                 for m in range(nv):
                     vn += gamma[m] * gamma[m]
                 vn = math.sqrt(vn)
-                if vn > 1.0:
+                # Driving (official code): |nu_z| = 1 exactly, not just <= 1
+                if vn > 1.0 or (model == DRIVING and vn > 0.0):
                     for m in range(nv):
                         gamma[m] /= vn
                 if math.sqrt(dn) < d_min:
@@ -235,11 +234,17 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
         for m in range(nvar):
             out_theta[k, m] = theta[m]
 
+    st_i[0] = t_last
+    st_f[0] = a
+    st_f[1] = div_num
+    st_f[2] = div_den
+
 
 @njit
 def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                fx, fy, cx, cy, s, w_thresh, l_theta, l_rho, n_iter, d_min,
-               use_fast_exp, out_rho, out_vx, out_vy, out_div, out_theta):
+               use_fast_exp, ctx_t, ctx_w, rho_map, mv, st_f, st_i,
+               out_rho, out_vx, out_vy, out_div, out_theta):
     """6-DOF with the official re-parameterisation (ParameterizedSixDOF).
 
     Same five steps as _run, written in the official code's sign convention
@@ -250,11 +255,7 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     paper's numbers were produced with it. Outputs are converted to the paper
     convention.
     """
-    nm = 7
-    ctx_t = np.full((2, height, width), -1.0)
-    ctx_w = np.zeros((2, height, width))
-    rho_map = np.ones((height, width))
-    mv = np.zeros(nm)        # (m0..m5, lambda), code convention
+    nm = 7                   # mv = (m0..m5, lambda), code convention (state)
     mv0 = np.zeros(nm)
     v3 = np.zeros(3)
     B = np.zeros((2, 7))
@@ -268,10 +269,10 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     Lw = np.zeros((7, 7))
     prior = np.full(nm, l_theta)
     prior[6] = l_rho
-    t_last = 0
-    a = 0.0
-    div_num = 0.0
-    div_den = 0.0
+    t_last = st_i[0]
+    a = st_f[0]
+    div_num = st_f[1]
+    div_den = st_f[2]
 
     for k in range(t_us.shape[0]):
         decay, t_last, a = decay_step(t_us[k], t_last, a)
@@ -412,18 +413,45 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
         out_theta[k, 4] = -mv[4]
         out_theta[k, 5] = -mv[5]
 
+    st_i[0] = t_last
+    st_f[0] = a
+    st_f[1] = div_num
+    st_f[2] = div_den
+
+
+class EttcmState:
+    """Everything the estimator remembers between events.
+
+    Pass the same state to successive run_ettcm calls to process one long event
+    stream in chunks (MVSEC): the result is identical to a single call.
+    """
+
+    def __init__(self, width, height):
+        self.ctx_t = np.full((2, height, width), -1.0)  # last event time per pixel/polarity
+        self.ctx_w = np.zeros((2, height, width))       # its Eq. (11) weight
+        self.rho_map = np.ones((height, width))         # last inverse depth per pixel
+        self.motion = np.zeros(7)                       # theta (or official 6-DOF m, lambda)
+        self.st_f = np.zeros(3)                         # a(t), div_num, div_den
+        self.st_i = np.zeros(1, dtype=np.int64)         # t_last (us)
+
 
 def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
-              l_rho=1.0, n_iter=2, d_min=1e-4, fast_exp=True):
-    """Run the estimator on a whole (rectified) event stream.
+              l_rho=1.0, n_iter=2, d_min=1e-4, fast_exp=True, state=None):
+    """Run the estimator on a (rectified) event stream.
 
     fast_exp=True uses the official build's approximate exp() for the residual
     kernel (needed to reproduce the paper's numbers exactly, mostly for 6-DOF);
     fast_exp=False uses the exact exp().
 
+    state: an EttcmState to continue from (and update); None = fresh start.
+    Event timestamps must keep increasing across calls that share a state.
+
     Returns a dict of per-event arrays: rho, vx, vy (px/s), div (global divergence
-    1/s, paper sign), ttc = 1/(rho*nu_z) per event, theta (N, n_vars).
+    1/s, paper sign), mu = rho*nu_z (per-event divergence), ttc = 1/mu,
+    theta (N, n_vars).
     """
+    if state is None:
+        state = EttcmState(cam.width, cam.height)
     n = len(events)
     out_rho = np.zeros(n)
     out_vx = np.zeros(n)
@@ -435,13 +463,17 @@ def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
             xr.astype(np.float64), yr.astype(np.float64), cam.map.astype(np.float64),
             cam.width, cam.height, cam.fx, cam.fy, cam.cx, cam.cy)
     hyper = (int(s), float(w_thresh), float(l_theta), float(l_rho), int(n_iter),
-             float(d_min), bool(fast_exp), out_rho, out_vx, out_vy, out_div, out_theta)
+             float(d_min), bool(fast_exp))
+    outs = (out_rho, out_vx, out_vy, out_div, out_theta)
     if model == SIX_DOF:
-        _run_param(*args, *hyper)
+        _run_param(*args, *hyper, state.ctx_t, state.ctx_w, state.rho_map,
+                   state.motion, state.st_f, state.st_i, *outs)
     else:
-        _run(*args, model, *hyper)
+        _run(*args, model, *hyper, state.ctx_t, state.ctx_w, state.rho_map,
+             state.motion[:n_vars(model)], state.st_f, state.st_i, *outs)
     nu_z = out_theta[:, n_v(model) - 1]
+    mu = out_rho * nu_z
     with np.errstate(divide="ignore"):
-        ttc = 1.0 / (out_rho * nu_z)
-    return dict(rho=out_rho, vx=out_vx, vy=out_vy, div=out_div, ttc=ttc,
+        ttc = 1.0 / mu
+    return dict(rho=out_rho, vx=out_vx, vy=out_vy, div=out_div, mu=mu, ttc=ttc,
                 theta=out_theta)

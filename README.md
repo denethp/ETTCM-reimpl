@@ -13,6 +13,10 @@ The method processes events one at a time and jointly estimates the camera's glo
 every average within 0.1 of the paper, at about 1 µs per event. The code matches the official
 C++ event by event (to ~1e-7 against a double-precision build). Details in [`RESULTS.md`](RESULTS.md).
 
+The MVSEC experiments (Tables 3–5: optical flow and divergence) and the TTC-map figures are
+implemented too (`reimpl/scripts/run_mvsec.py`, `plot_maps.py`); they are not part of the
+official code.
+
 ## Repository layout
 
 ```
@@ -22,12 +26,17 @@ reimpl/
     calib.py        calibration + rectification map
     decay.py        adaptive global decay, event activity a(t)
     linalg.py       small Cholesky solve
-    models.py       motion models: Scaling, Translation, 6-DOF (B matrix, Eq. 9)
+    models.py       motion models: Scaling, Translation, Driving, 6-DOF (B matrix, Eq. 9)
     estimator.py    per-event estimator
     evaluate.py     REE metric (Eq. 12), VL loader
+    mvsec.py        MVSEC loading, ground truth and flow / divergence metrics
     _jit.py         optional Numba JIT
-  scripts/run_vl.py Table 2 on VL, prints our numbers next to the paper's
-  tests/            test_io.py, test_models.py
+  scripts/
+    run_vl.py       Table 2 on VL, prints our numbers next to the paper's
+    run_mvsec.py    Tables 3-5 on MVSEC
+    inspect_mvsec.py  check the MVSEC files
+    plot_maps.py    Fig. 5/6-style flow and TTC maps
+  tests/            test_io.py, test_models.py, test_chunks.py
 RESULTS.md          Table 2: paper vs official code vs this implementation
 sources/links.txt   paper, code, dataset and background links
 ```
@@ -67,7 +76,8 @@ Baseline ECMD: 8.92 %. Runtime for Translation, s = 2: about 1.15 µs/event.
 - [x] Own implementation: Scaling, Translation and 6-DOF models
 - [x] Match the official C++ per event
 - [x] Reproduce Table 2 on VL with the own implementation
-- [ ] TTC maps and MVSEC optical flow (Tables 3–5; not in the official code)
+- [x] MVSEC pipeline (Tables 3–5) and TTC-map figures (not in the official code)
+- [ ] Run Tables 3–5 on the full MVSEC data and compare with the paper
 
 ## Citation
 

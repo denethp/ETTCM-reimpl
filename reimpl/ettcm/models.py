@@ -13,6 +13,9 @@ point (assumed to be the focus of expansion).
 
 Model ids (ints so Numba can branch on them):
     SCALING      theta = (nu_z,)                         n_vars = 1, n_v = 1
+    DRIVING      theta = (nu_z, w_y)                     n_vars = 2, n_v = 1
+                 Sec. 4.2, used on MVSEC outdoor_day1 (a car); |nu_z| = 1 is
+                 imposed, as in the official code's Driving model.
     TRANSLATION  theta = (nu_x, nu_y, nu_z)              n_vars = 3, n_v = 3
     SIX_DOF      theta = (nu_x, nu_y, nu_z, wx, wy, wz)  n_vars = 6, n_v = 3
                  Estimated exactly like the official code does it, with the
@@ -27,8 +30,10 @@ from ._jit import njit
 SCALING = 0
 TRANSLATION = 1
 SIX_DOF = 2
+DRIVING = 3
 
-MODEL_IDS = {"scaling": SCALING, "translation": TRANSLATION, "six_dof": SIX_DOF}
+MODEL_IDS = {"scaling": SCALING, "translation": TRANSLATION, "six_dof": SIX_DOF,
+             "driving": DRIVING}
 
 
 @njit
@@ -37,26 +42,35 @@ def n_vars(model):
         return 1
     if model == TRANSLATION:
         return 3
+    if model == DRIVING:
+        return 2
     return 6
 
 
 @njit
 def n_v(model):
-    if model == SCALING:
+    if model == SCALING or model == DRIVING:
         return 1
     return 3
 
 
 @njit
 def b_matrix(model, px, py, fx, fy, rho, B):
-    """Fill B (shape (2, >= n_vars)) for SCALING or TRANSLATION, paper convention.
+    """Fill B (shape (2, >= n_vars)) for SCALING, TRANSLATION or DRIVING, paper convention.
 
     SCALING:      B = rho * (px, py)^T                    (only nu_z)
     TRANSLATION:  B = rho * V_i,  V_i = [[-fx, 0, px], [0, -fy, py]]
+    DRIVING:      B = [[rho*px, -fx - px^2/fx], [rho*py, -px*py/fx]]   (nu_z, w_y)
     """
     if model == SCALING:
         B[0, 0] = rho * px
         B[1, 0] = rho * py
+        return
+    if model == DRIVING:
+        B[0, 0] = rho * px
+        B[1, 0] = rho * py
+        B[0, 1] = -fx - px * px / fx
+        B[1, 1] = -px * py / fx
         return
     B[0, 0] = -rho * fx
     B[0, 1] = 0.0
