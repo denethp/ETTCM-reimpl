@@ -4,8 +4,8 @@ Unzip VL.zip (https://figshare.com/ndownloader/files/44987794) so that
     datasets/VL/calib.txt
     datasets/VL/<seq>/events.es, divergence.txt, timestamps.txt   (8 sequences)
 
-    python scripts/run_vl.py --data ../datasets/VL --model translation -s 2
-    python scripts/run_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
+    python scripts/table2_vl.py --data ../datasets/VL --model translation -s 2
+    python scripts/table2_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
 
 Each line prints our REE next to the paper's Table 2 number for that sequence.
 Models: scaling, translation, six_dof (the official re-parameterised 6-DOF, which
@@ -52,8 +52,6 @@ def run_one(seq_dir, cam, model, s):
 
 
 def main():
-    from ettcm.tee import tee_output
-    tee_output()
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
     ap.add_argument("--model", default="translation", choices=ALL_MODELS)

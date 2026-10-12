@@ -1,10 +1,10 @@
 """Qualitative figures like the paper's Fig. 5/6: events, optical flow and TTC map.
 
 MVSEC (with GT flow and GT TTC panels if the files are there):
-    python scripts/plot_maps.py --dataset mvsec --data ../datasets/MVSEC \\
+    python scripts/figures.py --dataset mvsec --data ../datasets/MVSEC \\
         --seq indoor_flying1 --model translation --t 20 --out ../figures/if1_t20.png
 VL (no GT maps):
-    python scripts/plot_maps.py --dataset vl --data ../datasets/VL --seq 2D-1 \\
+    python scripts/figures.py --dataset vl --data ../datasets/VL --seq 2D-1 \\
         --model translation -s 2 --l-theta 1000 --t 8 --out ../figures/vl_2d1.png
 
 --t is the time (s) from the start of the evaluated window (MVSEC; outdoor_day1: 222.4 s
@@ -66,7 +66,7 @@ def run_mvsec(args):
     flow = None
     try:
         flow = M.GTFlow(M.find_file(args.data, f"{args.seq}_gt_flow_dist.npz"), args.seq)
-        t_ref = flow.window("paper", evf.time(0))[0]
+        t_ref = flow.window(evf.time(0))[0]
     except FileNotFoundError:
         t_ref = evf.time(0)
     ta, tb = t_ref + args.t, t_ref + args.t + args.window
@@ -87,7 +87,11 @@ def run_mvsec(args):
         gu, gv = flow.displacement(ta, tb)
         gt_flow = (gu / args.window, gv / args.window)      # px/s
     try:
-        div = M.DivergenceGT(M.find_file(args.data, f"{args.seq}_gt.hdf5"), flow, cam)
+        try:
+            odom = M.find_file(args.data, f"{args.seq}_odom.npz")
+        except FileNotFoundError:
+            odom = None
+        div = M.DivergenceGT(M.find_file(args.data, f"{args.seq}_gt.hdf5"), flow, cam, odom)
         with np.errstate(divide="ignore"):
             gt_ttc = 1.0 / div.mu_map(int(div.frame_of(ta)))
     except (FileNotFoundError, TypeError, AttributeError):
@@ -114,8 +118,6 @@ def run_vl(args):
 
 
 def main():
-    from ettcm.tee import tee_output
-    tee_output()
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", choices=["mvsec", "vl"], default="mvsec")
     ap.add_argument("--data", required=True)

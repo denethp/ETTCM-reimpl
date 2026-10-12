@@ -1,4 +1,4 @@
-"""Processing an event stream in chunks (as run_mvsec.py does) gives exactly the
+"""Processing an event stream in chunks (as tables45_mvsec.py does) gives exactly the
 same result as one run, for every model."""
 import os
 import sys

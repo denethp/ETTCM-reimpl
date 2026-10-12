@@ -28,7 +28,7 @@ official scripts: w_thresh = 0.01, l_theta = 1000, l_rho = 1, 2 Gauss-Newton ite
 "Our Python" was run on the laptop with:
 
 ```bash
-python scripts/run_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
+python scripts/table2_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
 ```
 
 "Official code" is the authors' C++ (github.com/neuromorphic-paris/ETTCM), built from source
@@ -101,75 +101,112 @@ Details that must be copied to reproduce the numbers (all mirrored in `reimpl/`)
 # MVSEC: Tables 3, 4 and 5 (optical flow and divergence)
 
 The official code does not include these experiments; everything below is our own pipeline
-(`reimpl/ettcm/mvsec.py`, `reimpl/scripts/run_mvsec.py`). Settings from the paper: s = 3,
-w_thresh = 0.01, l_θ = 100, l_ρ = 1. Sequences indoor_flying1–3 (whole) and outdoor_day1
-(222.4–240.4 s, EV-FlowNet's test split): **265.96 s evaluated**, matching the paper's
-"approximately 265 sec". Flow intervals: consecutive grayscale frames (dt = 1). Each event's
-flow m_i = Δt_frame · v_i is compared with the MVSEC GT flow at its pixel; outdoor_day1 rows < 190.
+(`reimpl/ettcm/mvsec.py`, `reimpl/scripts/tables45_mvsec.py` for Tables 4–5, `table3_mvsec.py` for
+Table 3). Settings from the
+paper: s = 3, w_thresh = 0.01, l_θ = 100, l_ρ = 1. Sequences indoor_flying1–3 (whole) and
+outdoor_day1 (222.4–240.4 s, EV-FlowNet's test split): **265.96 s evaluated**, matching the paper's
+"approximately 265 sec". Flow intervals: consecutive grayscale frames (dt = 1). Each event's flow
+m_i = Δt_frame · v_i is compared with the MVSEC GT flow at its pixel; outdoor_day1 rows < 190.
+For outdoor_day1 the estimator runs from the start of the recording (warm start, the default) and
+only the window is evaluated; starting cold at 222.4 s can leave the Driving model on the wrong sign
+of ν_z.
 
 ### Table 4: optical flow, AEE (px/frame) / Out (%)
 
 | Model | Source | indoor_flying1 | indoor_flying2 | indoor_flying3 | outdoor_day1 |
 |---|---|---|---|---|---|
 | Driving | Paper | 1.40 / 7.50 | 2.42 / 26.32 | 2.14 / 26.05 | 0.39 / 0.12 |
-| | **Ours** | **1.35** / 6.93 | **2.47** / 27.36 | **2.16** / 26.78 | **0.62** / 1.32 |
+| | **Ours** | **1.35** / 6.93 | **2.47** / 27.36 | **2.16** / 26.78 | **0.59** / 1.25 |
 | Translation | Paper | 0.63 / 0.41 | 0.94 / 2.83 | 0.79 / 1.65 | 0.55 / 0.97 |
-| | **Ours** | **0.66** / 0.87 | **1.19** / 6.48 | **0.94** / 3.69 | **0.68** / 1.58 |
+| | **Ours** | **0.66** / 0.87 | **1.19** / 6.48 | **0.94** / 3.69 | **0.67** / 1.59 |
 | 6-DOF | Paper | 0.88 / 1.97 | 1.60 / 12.02 | 1.38 / 9.99 | 0.81 / 2.26 |
-| | **Ours** | **0.84** / 1.79 | **1.60** / 10.77 | **1.38** / 8.66 | **0.77** / 2.38 |
+| | **Ours** | **0.84** / 1.79 | **1.60** / 10.77 | **1.38** / 8.66 | **0.76** / 1.91 |
 
 ### Table 5: optical flow, AREE (%) / AAE (deg)
 
 | Model | Source | indoor_flying3 | outdoor_day1 |
 |---|---|---|---|
 | Driving | Paper | 104.05 / 60.36 | 50.25 / 13.31 |
-| | **Ours** | 362.85 / **60.75** | 98.57 / **15.67** |
+| | **Ours** | 362.85 / **60.75** | 87.27 / **15.11** |
 | Translation | Paper | 44.46 / 11.38 | 72.67 / 21.77 |
-| | **Ours** | 50.90 / **12.12** | 96.23 / **20.38** |
+| | **Ours** | 50.90 / **12.12** | 92.73 / **21.95** |
 | 6-DOF | Paper | 95.23 / 21.35 | 122.04 / 31.68 |
-| | **Ours** | 84.35 / **21.41** | 121.23 / **22.89** |
+| | **Ours** | 84.35 / **21.41** | 120.29 / **22.52** |
 
 ### Table 3: divergence (inverse TTC), AREE (%)
 
+GT: μ = V_z / Z per event, Z from MVSEC's rectified depth map, V_z from MVSEC's published camera
+velocity (`<seq>_odom.npz`, `lin_vel`).
+
 | Model | Source | indoor_flying1 | indoor_flying2 | outdoor_day1 |
-|---|---|---|---|---|
+|---|---|---:|---:|---:|
 | Driving | Paper | 153.30 | 84.80 | 47.27 |
-| | Ours, mean (Eq. 14) | 473.29 | 250.33 | 85.51 |
-| | Ours, median | 194.67 | 128.17 | 36.97 |
+| | Ours, all events (Eq. 14) | 315.52 | 212.16 | 70.96 |
+| | Ours, median | 120.33 | 103.35 | 36.2 |
 | Translation | Paper | 19.82 | 28.23 | 45.78 |
-| | Ours, mean (Eq. 14) | 66.77 | 81.88 | 60.24 |
-| | Ours, median | 23.82 | 28.62 | 39.67 |
+| | Ours, all events (Eq. 14) | 66.77 | 81.88 | 54.31 |
+| | Ours, median | **23.82** | **28.69** | **44.0** |
+| | Ours, only \|μ_gt\| ≥ 0.2 /s | **18.24** | **29.44** | – |
 | 6-DOF | Paper | 53.65 | 56.12 | 56.66 |
-| | Ours, mean (Eq. 14) | 116.84 | 120.01 | 67.17 |
-| | Ours, median | 81.02 | 95.74 | 44.48 |
+| | Ours, all events (Eq. 14) | 113.15 | 120.27 | 66.09 |
+| | Ours, median | 83.24 | 95.73 | 53.7 |
+
+indoor_flying3 is not in the paper's Table 3, but its discussion says Driving "performs poorly on
+the indoor flying3 sequence", so we ran it too (`table3_mvsec.py --seq indoor_flying3`):
+
+| Protocol | Driving | Translation | 6-DOF |
+|---|---:|---:|---:|
+| all events (Eq. 14) | 388.91 | 153.85 | 209.21 |
+| median | 105.59 | 24.52 | 87.49 |
+| errors capped at 100 % | 90.88 | 37.28 | 74.80 |
+| \|μ_gt\| ≥ 0.05 /s (84 % of events kept) | 137.84 | 39.32 | 88.06 |
+| \|μ_gt\| ≥ 0.1 /s (73 % kept) | 124.56 | 32.31 | 83.96 |
+| \|μ_gt\| ≥ 0.2 /s (52 % kept) | 106.39 | 25.11 | 82.56 |
+| frames \|V_z\| ≥ 0.1 m/s (84 % kept) | 141.58 | 35.75 | 91.94 |
+| frames \|V_z\| ≥ 0.2 m/s (71 % kept) | 125.63 | 30.51 | 86.24 |
+| TTC map at the depth frames (≤ 0.05 s old) | 397.21 | 166.97 | 213.69 |
+| all events, GT velocity from the GT flow | 760.74 | 313.86 | 350.27 |
+
+It behaves like indoor_flying2: a mislabelled column would not explain the gap.
 
 **Summary**
 
 - **Optical flow (Table 4) is reproduced.** Driving and 6-DOF match the paper on the indoor
   sequences to within 0.05 px/frame (e.g. 6-DOF indoor_flying2 1.60 vs 1.60, indoor_flying3 1.38 vs
   1.38). Translation is slightly worse than the paper (0.03–0.25 px/frame), outdoor Driving more so
-  (0.62 vs 0.39).
-- **Flow direction (AAE, Table 5) is reproduced** to within ~2.5° everywhere except 6-DOF on
-  outdoor_day1, where ours is better (22.9° vs 31.7°). AREE is close for Translation and 6-DOF on
-  indoor_flying3 (50.9 vs 44.5, 84.4 vs 95.2); Driving's AREE is much higher (relative errors explode where the GT flow is
-  almost zero, and the paper does not say how it handled those).
-- **Divergence (Table 3)**: our per-event estimates have the right sign (91–100 % of events for
-  Translation and 6-DOF) and, for Translation, the right size (median estimate / GT 1.10, 1.12,
-  0.78). Our *mean* relative error (Eq. 14) is 2–3× the paper's; our *median* relative error is
-  close to the paper's numbers for Translation (23.8 / 28.6 / 39.7 vs 19.8 / 28.2 / 45.8). The
-  mean is dominated by events where the true forward speed is close to zero. The paper does not
-  describe its exact Table 3 evaluation (which events, any exclusions), so this table is only
-  approximately reproduced.
+  (0.59 vs 0.39).
+- **Flow direction (AAE, Table 5) is reproduced** to within ~2° everywhere except 6-DOF on
+  outdoor_day1, where ours is better (22.5° vs 31.7°). AREE is close for Translation and 6-DOF on
+  indoor_flying3 (50.9 vs 44.5, 84.4 vs 95.2); Driving's AREE is much higher.
+- **Divergence (Table 3) is reproduced for the Translation model (the paper's best) and
+  approximately outdoors, not for 6-DOF and Driving indoors.**
+  - Outdoors all three models land within 9–24 points of the paper (71 / 54 / 66 vs 47 / 46 / 57),
+    with the right sign (97–100 % of events) and, for Driving, the right size (median est/GT 1.01).
+  - Indoors, the paper's Translation numbers (19.8 / 28.2) are matched by our median (23.8 / 28.7)
+    or by excluding events with near-zero GT divergence, |μ_gt| < 0.2 /s (18.2 / 29.4). Our plain
+    mean is 2–3× higher: the drone often barely moves forward (|V_z| < 0.05 m/s in 13–20 % of
+    frames), where any error becomes a huge relative error. The paper does not say how it treated
+    these; no single protocol we tried (`table3_mvsec.py`: thresholds, medians, caps, TTC-space
+    errors, map-based evaluation at the depth frames) matches all nine numbers at once.
+  - Indoor 6-DOF underestimates the forward motion (median est/GT 0.49 and 0.07 on indoor_flying1/2),
+    and Driving (which can only move forward and yaw) cannot explain the drone's motion; no
+    evaluation protocol brings 6-DOF to the paper's values, and Driving only into its range.
+  - Likely causes and the questions for the authors are in the README, Section 7.
 
-**How the GT divergence was built.** μ_gt = V_z / Z per event: Z from MVSEC's rectified depth
-map, V_z from MVSEC's camera velocity exactly as MVSEC's own tool computes it (odometry poses,
-±10-sample in-place smoothing). Recovering V from the GT flow files instead gives about half the
-forward speed of the odometry, which made our divergence look 2× too large; the odometry-based
-GT is what the paper describes ("GT depth maps and camera velocity"). `run_mvsec.py` prints the
-results for all four GT velocity variants.
+**Ground truth and data checks** (`table3_mvsec.py`):
 
-Reproduce (on the laptop, ~20 min for everything):
+- The GT flow inside `<seq>_gt.hdf5` is identical to `<seq>_gt_flow_dist.npz`.
+- Our camera velocity from the odometry poses equals MVSEC's published `_odom.npz` (ratio 1.000).
+- **MVSEC's GT flow files imply only 55–65 % of that forward speed** (least-squares fit of the
+  velocity to the GT flow and depth). Using the flow-implied velocity as GT made our divergence look
+  2× too large; the odometry velocity is what the paper describes ("GT depth maps and camera
+  velocity") and what we use. This is an inconsistency inside MVSEC, worth knowing for any
+  divergence/TTC evaluation on it.
+
+Reproduce (from `reimpl/`):
 
 ```bash
-python scripts/run_mvsec.py --data ../datasets/MVSEC --seq all --model all --table3 --csv ../results_python_mvsec.csv
+python scripts/tables45_mvsec.py --data ../datasets/MVSEC --seq all --model all --csv ../results_python_mvsec.csv   # Tables 4, 5
+python scripts/table3_mvsec.py --data ../datasets/MVSEC                                                      # Table 3 + data checks
+python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying3
 ```

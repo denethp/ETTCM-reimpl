@@ -6,6 +6,8 @@ Files (one set per sequence, e.g. indoor_flying1), as downloaded from the MVSEC 
     <seq>_gt.hdf5            depth   davis/left/depth_image_rect (K, 260, 346) [m]
                                      davis/left/depth_image_rect_ts (K,) [s]
     <seq>_gt_flow_dist.npz   flow    timestamps (K,), x_flow_dist, y_flow_dist (K, 260, 346)
+    <seq>_odom.npz           camera  timestamps (K,), lin_vel, ang_vel (K, 3): the velocity
+                                     MVSEC used to generate the GT flow (Table 3 GT)
     <scene>_calib.zip        calib   camchain-imucam-<scene>.yaml, <scene>_left_x_map.txt,
                                      <scene>_left_y_map.txt   (scene = indoor_flying / outdoor_day)
 
@@ -16,10 +18,9 @@ each raw pixel is moved to its rectified position with the calib x/y maps. Estim
 flow (px/s, rectified pixels) is then directly comparable with the GT flow.
 
 Evaluation protocol (EV-FlowNet [51], as used by the papers in Tables 4-5):
-  * time windows (protocol "paper", default): the whole indoor_flying sequences and
-    outdoor_day1 from 222.4 s to 240.4 s (EV-FlowNet, Sec. 5). Total ~266 s, matching the
-    paper's "the evaluated sequences span approximately 265sec". Protocol "secrets":
-    the valid GT frames of tub-rip/event_based_optical_flow (VALID_GT_FRAMES), ~463 s.
+  * time windows: the whole indoor_flying sequences and outdoor_day1 from 222.4 s to
+    240.4 s (EV-FlowNet, Sec. 5). Total ~266 s, matching the paper's "the evaluated
+    sequences span approximately 265sec".
   * intervals between grayscale frames [t_k, t_k+dt]; GT displacement over the interval
     by propagating the GT flow (estimate_corresponding_gt_flow, ported from EV-FlowNet)
   * only pixels with events and with non-zero, finite GT flow; outdoor: rows < 190 only
@@ -37,16 +38,9 @@ from .calib import Camera
 
 HEIGHT, WIDTH = 260, 346
 
-# Protocol "paper": outdoor_day1 window in seconds from the start of the recording
-# (EV-FlowNet); indoor sequences are used whole.
+# outdoor_day1 window in seconds from the start of the recording (EV-FlowNet);
+# indoor sequences are used whole.
 OUTDOOR_DAY1_WINDOW = (222.4, 240.4)
-# Protocol "secrets": first / last valid GT-flow frame (python slice [a:b]) per sequence.
-VALID_GT_FRAMES = {
-    "indoor_flying1": (60, 1340),
-    "indoor_flying2": (140, 1500),
-    "indoor_flying3": (100, 1711),
-    "outdoor_day1": (0, 5020),
-}
 OUTDOOR_MAX_ROW = 190   # EV-FlowNet: only the top 190 rows for the car sequences
 
 # Paper numbers (Nunes et al., ICCV 2023).
@@ -198,16 +192,11 @@ class GTFlow:
         self.u_all = npz_array(path, "x_flow_dist")
         self.v_all = npz_array(path, "y_flow_dist")
 
-    def window(self, protocol="paper", t_rec0=None):
+    def window(self, t_rec0=None):
         """(t_start, t_end) of the evaluated part, absolute seconds.
 
         t_rec0: start of the recording (first event), needed for outdoor_day1."""
         ts = self.ts_all
-        if protocol == "secrets":
-            a, b = VALID_GT_FRAMES.get(self.seq, (0, len(ts)))
-            b = min(b, len(ts))
-            a = min(a, b - 1)
-            return ts[a], ts[b - 1]
         if self.seq == "outdoor_day1":
             if t_rec0 is None:
                 raise ValueError("outdoor_day1 needs the recording start time")
@@ -316,25 +305,24 @@ class DivergenceGT:
     """Per-pixel GT divergence mu = V_z / Z (paper Sec. 4.1: "GT TTCMs by applying
     Eq. (1) given the GT depth maps and camera velocity").
 
-    Z comes from the GT depth map (depth_image_rect). The camera velocity V can come from
-    three sources (VEL_SOURCES), all reported by run_mvsec.py:
-      "odom"         consecutive odometry poses (gt.hdf5 davis/left/odometry, 4x4):
-                     V = translation of inv(H_{j-1}) H_j / dt, as in MVSEC's compute_flow.py
-      "odom_mvsec"   exactly MVSEC's own camera velocity (compute_flow.py, also saved as its
-                     <seq>_odom.npz "lin_vel"): odometry sample k paired with depth frame k,
-                     velocity of sample 0 = 0, then a +-10-sample mean computed *in place*
-                     (the array is overwritten while averaging, so it smooths recursively)
-      "odom_smooth"  a plain (non-recursive) +-10-sample mean of "odom"
-      "flow"         recovered from the GT flow of the same frame by least squares:
-                       flow_x / (dt_k Pfx) = (x V_z - V_x) / Z + (x y, -(1 + x^2), y) . Omega
-                       flow_y / (dt_k Pfy) = (y V_z - V_y) / Z + (1 + y^2, -x y, -x) . Omega
-    On indoor_flying1 the flow files imply about half the forward speed of the odometry,
-    so the choice matters for Table 3.
+    Z comes from the GT depth map (depth_image_rect). The camera velocity V_z can come from
+    three sources (VEL_SOURCES):
+      "odom_npz"  MVSEC's published camera velocity, <seq>_odom.npz "lin_vel" (the velocity
+                  MVSEC used to generate its GT flow). This is the Table 3 ground truth.
+      "poses"     the same velocity rebuilt from the odometry poses in <seq>_gt.hdf5, exactly
+                  as MVSEC's compute_flow.py does it (pose k paired with depth frame k,
+                  V = translation of inv(H_{k-1}) H_k / dt, then a +-10-sample mean computed
+                  in place). Equal to "odom_npz" (ratio 1.000); used when odom.npz is missing.
+      "flow"      recovered from the GT flow of the same frame by least squares:
+                    flow_x / (dt_k Pfx) = (x V_z - V_x) / Z + (x y, -(1 + x^2), y) . Omega
+                    flow_y / (dt_k Pfy) = (y V_z - V_y) / Z + (1 + y^2, -x y, -x) . Omega
+                  Only a data check: MVSEC's flow files imply 55-65 % of the odometry's
+                  forward speed (an inconsistency inside MVSEC).
     """
 
-    VEL_SOURCES = ("odom_mvsec", "odom_smooth", "odom", "flow")
+    VEL_SOURCES = ("odom_npz", "poses", "flow")
 
-    def __init__(self, gt_h5_path, flow, cam):
+    def __init__(self, gt_h5_path, flow, cam, odom_npz_path=None):
         h5 = _h5py().File(gt_h5_path, "r")
         self.h5 = h5
         g = h5["davis"]["left"]
@@ -347,33 +335,24 @@ class DivergenceGT:
         self.xn = (u - cam.cx) / cam.fx
         self.yn = (v - cam.cy) / cam.fy
         self._cache = {}
-        self._odom = None
-        try:
+        self._npz = None
+        self._poses = None
+        if odom_npz_path is not None:
+            d = np.load(odom_npz_path)
+            self._npz = (np.asarray(d["timestamps"], dtype=np.float64),
+                         np.asarray(d["lin_vel"], dtype=np.float64))
+        if "odometry" in g:
             ots = np.asarray(g["odometry_ts"][:], dtype=np.float64)
             Hs = np.asarray(g["odometry"][:], dtype=np.float64)
-            V = np.zeros((len(ots), 3))
-            for j in range(1, len(ots)):
-                H01 = np.linalg.inv(Hs[j - 1]) @ Hs[j]
-                V[j] = H01[:3, 3] / (ots[j] - ots[j - 1])
-            V[0] = V[1]
-            Vs = np.array([V[max(j - 10, 0):j + 11].mean(axis=0) for j in range(len(V))])
-            self._odom = (ots, V, Vs)
-            # MVSEC compute_flow.py, reproduced literally (index-paired with depth frames)
             n = min(len(self.dts), len(Hs))
-            Vm = np.zeros((n, 3))
+            V = np.zeros((n, 3))
             for f in range(1, n):
                 H01 = np.linalg.inv(Hs[f - 1]) @ Hs[f]
-                Vm[f] = H01[:3, 3] / (ots[f] - ots[f - 1])
-            for f in range(n):                       # in place, like smoothed_Vs = Vs
-                if f - 10 < 0:
-                    Vm[f] = Vm[0:f + 11].mean(axis=0)
-                elif f + 10 >= n:
-                    Vm[f] = Vm[f - 10:n].mean(axis=0)
-                else:
-                    Vm[f] = Vm[f - 10:f + 11].mean(axis=0)
-            self._odom_mvsec = Vm
-        except KeyError:
-            pass
+                V[f] = H01[:3, 3] / (ots[f] - ots[f - 1])
+            for f in range(n):                       # in place, like MVSEC's smoothed_Vs = Vs
+                V[f] = V[max(f - 10, 0):min(f + 11, n)].mean(axis=0)
+            self._poses = V
+        self.default_source = "odom_npz" if self._npz is not None else "poses"
 
     def frame_of(self, t):
         return np.clip(np.searchsorted(self.dts, t, side="right") - 1, 0, len(self.dts) - 1)
@@ -401,28 +380,22 @@ class DivergenceGT:
         sol, *_ = np.linalg.lstsq(A, b, rcond=None)
         return sol[:3], sol[3:]
 
-    def odom_velocity(self, k, smooth=False):
-        """Camera velocity at depth frame k from the odometry (nearest sample)."""
-        if self._odom is None:
-            return None
-        ots, V, Vs = self._odom
-        j = int(np.argmin(np.abs(ots - self.dts[k])))
-        if abs(ots[j] - self.dts[k]) > 0.05:
-            return None
-        return (Vs if smooth else V)[j]
-
     def vz(self, k, source):
-        if source == "odom_mvsec":
-            Vm = getattr(self, "_odom_mvsec", None)
-            return None if Vm is None or k >= len(Vm) else Vm[k][2]
-        if source == "flow":
-            vel = self.velocity(k)
-            return None if vel is None else vel[0][2]
-        v = self.odom_velocity(k, smooth=(source == "odom_smooth"))
-        return None if v is None else v[2]
+        """Forward camera speed V_z [m/s] at depth frame k (None if unavailable)."""
+        if source == "odom_npz":
+            if self._npz is None:
+                return None
+            ts, lv = self._npz
+            j = int(np.argmin(np.abs(ts - self.dts[k])))
+            return lv[j][2] if abs(ts[j] - self.dts[k]) <= 0.025 else None
+        if source == "poses":
+            return None if self._poses is None or k >= len(self._poses) else self._poses[k][2]
+        vel = self.velocity(k)
+        return None if vel is None else vel[0][2]
 
-    def mu_map(self, k, source="odom_mvsec"):
+    def mu_map(self, k, source=None):
         """(H, W) GT divergence of depth frame k (nan where depth is invalid)."""
+        source = source or self.default_source
         key = (k, source)
         if key in self._cache:
             return self._cache[key]
