@@ -37,7 +37,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from ettcm import mvsec as M  # noqa: E402
-from ettcm.estimator import EttcmState, run_ettcm  # noqa: E402
+from ettcm.estimator import run_ettcm  # noqa: E402
 from ettcm.io_es import EVENT_DTYPE  # noqa: E402
 from ettcm.models import MODEL_IDS  # noqa: E402
 
@@ -101,10 +101,13 @@ def checks(seq, flow, div, t_start, t_end):
 def evaluate(args, seq, model, cam, evf, flow, div, t_start, t_end):
     src = div.default_source
     # warm start: outdoor_day1 runs from the start of the recording, only the window is scored
-    i0 = 0 if (seq == "outdoor_day1" and not args.cold) else evf.index_of_time(t_start)
+    if seq == "outdoor_day1" and not args.cold:
+        i0 = evf.index_of_time(evf.time(0) + args.start)
+    else:
+        i0 = evf.index_of_time(t_start)
     i1 = evf.index_of_time(t_end)
     t0 = evf.time(i0)
-    state = EttcmState(cam.width, cam.height)
+    state = M.initial_state(cam, MODEL_IDS[model], seq, args.init_nu_z)
     H, W = cam.height, cam.width
     acc = {"all": Acc(), "cap": Acc(), "map": Acc()}
     acc.update({f"mu{v}": Acc() for v in MU_THR})
@@ -135,7 +138,8 @@ def evaluate(args, seq, model, cam, evf, flow, div, t_start, t_end):
         ev["t"] = np.round((t - t0) * 1e6).astype(np.int64)
         ev["x"], ev["y"], ev["p"] = x, y, p
         out = run_ettcm(ev, xr, yr, cam, MODEL_IDS[model], s=args.s, w_thresh=0.01,
-                        l_theta=args.l_theta, l_rho=1.0, state=state)
+                        l_theta=args.l_theta, l_rho=1.0, state=state,
+                        six_dof_jacobian=args.jacobian)
         xi = np.clip(np.round(xr).astype(np.int64), 0, W - 1)
         yi = np.clip(np.round(yr).astype(np.int64), 0, H - 1)
         mu = out["mu"]
@@ -215,6 +219,12 @@ def main():
     ap.add_argument("--l-theta", type=float, default=100.0)
     ap.add_argument("--cold", action="store_true",
                     help="outdoor_day1: start the estimator at 222.4 s instead of the recording start")
+    ap.add_argument("--start", type=float, default=0.0,
+                    help="outdoor_day1 warm start: seconds after the recording start to begin at")
+    ap.add_argument("--init-nu-z", type=float, default=None,
+                    help="initial nu_z (paper sign, + = forward). Default: +1 for Driving on outdoor_day1, else 0")
+    ap.add_argument("--jacobian", default="official", choices=["official", "consistent"],
+                    help="6-DOF Gauss-Newton Jacobian: as the official C++ or the model's true derivative")
     ap.add_argument("--map-age", type=float, default=0.05, help="max age (s) of a map pixel")
     ap.add_argument("--chunk", type=int, default=2_000_000)
     ap.add_argument("--max-seconds", type=float, default=0.0, help="only the first N seconds (tests)")

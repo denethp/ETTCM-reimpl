@@ -39,10 +39,18 @@ def read_calibration(path):
 
 
 def make_camera(path=None, alpha=0.0, *, fx=None, fy=None, cx=None, cy=None,
-                dist=None, width=None, height=None):
-    """Load calib.txt (or take explicit intrinsics) and build the rectification map."""
+                dist=None, width=None, height=None, sampling=1):
+    """Load calib.txt (or take explicit intrinsics) and build the rectification map.
+
+    sampling = r > 1: camera of the resolution reduced by r (supplementary, Table 6), as the
+    official Rectify(..., width_sampling_factor = height_sampling_factor = r): size
+    ceil(W / r) x ceil(H / r), fx, cx divided by r, fy, cy divided by r."""
     if path is not None:
         fx, fy, cx, cy, dist, width, height = read_calibration(path)
+    if sampling != 1:
+        r = float(sampling)
+        width, height = int(np.ceil(width / r)), int(np.ceil(height / r))
+        fx, cx, fy, cy = fx / r, cx / r, fy / r, cy / r
     dist = np.zeros(5) if dist is None else np.asarray(dist, float)
     K = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], float)
 

@@ -1,0 +1,40 @@
+== indoor_flying3: 93.7 s
+  -- checks for indoor_flying3
+     GT flow gt.hdf5 vs npz: max |diff| 0.0000 px, median |hdf5|/|npz| 1.000
+     V_z median |.| [m/s]: odom.npz 0.255, ours from poses 0.255, implied by GT flow 0.143
+     median ratio (frames with clear forward motion): poses/odom.npz 1.000, flow/odom.npz 0.566
+
+
+
+
+== Table 3, divergence AREE (%) under different protocols
+                                               drivi/if3    trans/if3    six_d/if3
+PAPER                                                nan          nan          nan
+per event, all                                    388.91       153.85       209.21
+per event, median                                 105.59        24.52        87.49
+per event, error capped at 100 %                   90.88        37.28        74.80
+per event, |mu_gt| >= 0.01 1/s                    172.17        59.49       106.23
+   (% of events kept)                              96.71        96.71        96.71
+per event, |mu_gt| >= 0.02 1/s                    151.52        48.30        98.72
+   (% of events kept)                              93.10        93.10        93.10
+per event, |mu_gt| >= 0.05 1/s                    137.84        39.32        88.06
+   (% of events kept)                              83.77        83.77        83.77
+per event, |mu_gt| >= 0.1 1/s                     124.56        32.31        83.96
+   (% of events kept)                              72.59        72.59        72.59
+per event, |mu_gt| >= 0.2 1/s                     106.39        25.11        82.56
+   (% of events kept)                              52.14        52.14        52.14
+per event, frames |V_z| >= 0.05 m/s               150.81        42.91        99.49
+   (% of events kept)                              92.14        92.14        92.14
+per event, frames |V_z| >= 0.1 m/s                141.58        35.75        91.94
+   (% of events kept)                              84.49        84.49        84.49
+per event, frames |V_z| >= 0.2 m/s                125.63        30.51        86.24
+   (% of events kept)                              70.63        70.63        70.63
+TTC map at depth frames (<= 0.05 s old)           397.21       166.97       213.69
+   same, mean of per-frame AREE                  5195.60       256.09       276.54
+
+== per event, all events, by GT camera-velocity source
+GT velocity: odom_npz                             388.91       153.85       209.21
+GT velocity: poses                                388.91       153.85       209.21
+GT velocity: flow                                 760.74       313.86       350.27
+
+(main rows use GT velocity: odom_npz)

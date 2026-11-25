@@ -96,6 +96,51 @@ Details that must be copied to reproduce the numbers (all mirrored in `reimpl/`)
 - **Sign convention.** The code uses B_code = −B_paper, θ_code = −θ_paper. Our code uses the
   paper's signs; outputs (divergence, TTC, depth, flow) are identical.
 
+## Fig. 1: runtime vs accuracy
+
+`figures/fig1_runtime.png` (`scripts/fig1_runtime.py`). Our six (model, s) averages land next to
+the paper's "Proposed" point (Translation s = 2: 5.64 % at 0.94 µs/event vs the paper's 5.64 % at
+1.15 µs), far left of / below the other methods (PF, E-RAFT, CT, SOFAS, ECMD). The other methods'
+positions are read off the paper's figure (ECMD read back: 51 µs / 8.96 % vs exact 50.90 / 8.92).
+
+## 6-DOF with the self-consistent Jacobian (`--jacobian consistent`)
+
+| s | Paper | Official Jacobian (default) | Consistent Jacobian |
+|---|---:|---:|---:|
+| 2 | 10.11 | 10.13 | 5.72 |
+| 3 | 6.42 | 6.34 | 13.80 |
+
+The paper's Table 2 comes from the official Jacobian; the consistent one is better at s = 2 and
+worse at s = 3. (The supplementary's Eq. 18 matches the consistent one, not the C++.)
+
+---
+
+# Supplementary: Table 6 and Fig. 8 (VL, resolution reduction r)
+
+Event sampling by leaky firing (supplementary Sec. B, Fig. 7): coordinates divided by r, one
+counter per reduced pixel and polarity fires every r² events, the estimator runs at the reduced
+resolution (intrinsics / r). Same as the official `leaky_sampling.hpp`, `table_6_results.sh`
+(`-w r -g r`). Run with `scripts/table6_vl.py`; per-sequence numbers in
+`results_python_vl_table6.csv` and `table6_run.txt`; plot `figures/fig8_resolution.png`.
+
+**Reproduced: 23 of 24 averages within 0.08 of the paper** (most within 0.02); the one exception
+is 6-DOF, s = 2, r = 4 (22.06 vs 22.50), which also varies the most in the paper (single
+sequences from 10 % to 38 %).
+
+Average REE (%) over the 8 sequences, ours / paper:
+
+| Model | s | r = 1 | r = 2 | r = 3 | r = 4 |
+|---|---|---|---|---|---|
+| Scaling | 2 | 8.29 / 8.29 | 9.59 / 9.57 | 9.19 / 9.14 | 11.06 / 10.98 |
+| Translation | 2 | 5.64 / 5.64 | 6.04 / 6.02 | 7.76 / 7.74 | 10.05 / 10.04 |
+| 6-DOF | 2 | 10.13 / 10.11 | 7.11 / 7.13 | 10.40 / 10.34 | 22.06 / 22.50 |
+| Scaling | 3 | 15.08 / 15.08 | 15.56 / 15.55 | 15.59 / 15.58 | 18.35 / 18.34 |
+| Translation | 3 | 9.31 / 9.31 | 11.56 / 11.55 | 12.78 / 12.78 | 14.86 / 14.82 |
+| 6-DOF | 3 | 6.34 / 6.42 | 6.35 / 6.36 | 8.41 / 8.39 | 10.92 / 10.92 |
+
+Events processed per sequence (average): 3.59 M at r = 1, 0.75 M at r = 2 (÷4.8), 0.32 M at
+r = 3 (÷11), 0.17 M at r = 4 (÷21), so the actual runtime drops by about r² as the paper says.
+
 ---
 
 # MVSEC: Tables 3, 4 and 5 (optical flow and divergence)
@@ -120,7 +165,7 @@ of ν_z.
 | Translation | Paper | 0.63 / 0.41 | 0.94 / 2.83 | 0.79 / 1.65 | 0.55 / 0.97 |
 | | **Ours** | **0.66** / 0.87 | **1.19** / 6.48 | **0.94** / 3.69 | **0.67** / 1.59 |
 | 6-DOF | Paper | 0.88 / 1.97 | 1.60 / 12.02 | 1.38 / 9.99 | 0.81 / 2.26 |
-| | **Ours** | **0.84** / 1.79 | **1.60** / 10.77 | **1.38** / 8.66 | **0.76** / 1.91 |
+| | **Ours** | **0.84** / 1.79 | **1.60** / 10.77 | **1.38** / 8.66 | **0.76** / 1.83 |
 
 ### Table 5: optical flow, AREE (%) / AAE (deg)
 
@@ -131,7 +176,7 @@ of ν_z.
 | Translation | Paper | 44.46 / 11.38 | 72.67 / 21.77 |
 | | **Ours** | 50.90 / **12.12** | 92.73 / **21.95** |
 | 6-DOF | Paper | 95.23 / 21.35 | 122.04 / 31.68 |
-| | **Ours** | 84.35 / **21.41** | 120.29 / **22.52** |
+| | **Ours** | 84.35 / **21.41** | 120.17 / **22.42** |
 
 ### Table 3: divergence (inverse TTC), AREE (%)
 
@@ -141,15 +186,15 @@ velocity (`<seq>_odom.npz`, `lin_vel`).
 | Model | Source | indoor_flying1 | indoor_flying2 | outdoor_day1 |
 |---|---|---:|---:|---:|
 | Driving | Paper | 153.30 | 84.80 | 47.27 |
-| | Ours, all events (Eq. 14) | 315.52 | 212.16 | 70.96 |
-| | Ours, median | 120.33 | 103.35 | 36.2 |
+| | Ours, all events (Eq. 14) | 315.52 | 212.16 | 71.08 |
+| | Ours, median | 120.33 | 103.35 | 36.05 |
 | Translation | Paper | 19.82 | 28.23 | 45.78 |
 | | Ours, all events (Eq. 14) | 66.77 | 81.88 | 54.31 |
-| | Ours, median | **23.82** | **28.69** | **44.0** |
+| | Ours, median | **23.82** | **28.69** | **43.98** |
 | | Ours, only \|μ_gt\| ≥ 0.2 /s | **18.24** | **29.44** | – |
 | 6-DOF | Paper | 53.65 | 56.12 | 56.66 |
-| | Ours, all events (Eq. 14) | 113.15 | 120.27 | 66.09 |
-| | Ours, median | 83.24 | 95.73 | 53.7 |
+| | Ours, all events (Eq. 14) | 113.15 | 120.27 | 66.83 |
+| | Ours, median | 83.24 | 95.73 | 53.74 |
 
 indoor_flying3 is not in the paper's Table 3, but its discussion says Driving "performs poorly on
 the indoor flying3 sequence", so we ran it too (`table3_mvsec.py --seq indoor_flying3`):

@@ -1,0 +1,164 @@
+== indoor_flying2: 84.5 s
+  -- checks for indoor_flying2
+     GT flow gt.hdf5 vs npz: max |diff| 0.0000 px, median |hdf5|/|npz| 1.000
+     V_z median |.| [m/s]: odom.npz 0.241, ours from poses 0.241, implied by GT flow 0.161
+     median ratio (frames with clear forward motion): poses/odom.npz 1.000, flow/odom.npz 0.571
+     frames with |V_z| below 0.05 m/s: 20 %, 0.1 m/s: 27 %, 0.2 m/s: 38 %
+    indoor_flying2 driving:   8.0 %    indoor_flying2 driving:  16.0 %    indoor_flying2 driving:  24.0 %    indoor_flying2 driving:  31.9 %    indoor_flying2 driving:  39.9 %    indoor_flying2 driving:  47.9 %    indoor_flying2 driving:  55.9 %    indoor_flying2 driving:  63.9 %    indoor_flying2 driving:  71.9 %    indoor_flying2 driving:  79.9 %    indoor_flying2 driving:  87.9 %    indoor_flying2 driving:  95.8 %    indoor_flying2 driving: 100.0 %
+    indoor_flying2 translation:   8.0 %    indoor_flying2 translation:  16.0 %    indoor_flying2 translation:  24.0 %    indoor_flying2 translation:  31.9 %    indoor_flying2 translation:  39.9 %    indoor_flying2 translation:  47.9 %    indoor_flying2 translation:  55.9 %    indoor_flying2 translation:  63.9 %    indoor_flying2 translation:  71.9 %    indoor_flying2 translation:  79.9 %    indoor_flying2 translation:  87.9 %    indoor_flying2 translation:  95.8 %    indoor_flying2 translation: 100.0 %
+    indoor_flying2 six_dof:   8.0 %    indoor_flying2 six_dof:  16.0 %    indoor_flying2 six_dof:  24.0 %    indoor_flying2 six_dof:  31.9 %    indoor_flying2 six_dof:  39.9 %    indoor_flying2 six_dof:  47.9 %    indoor_flying2 six_dof:  55.9 %    indoor_flying2 six_dof:  63.9 %    indoor_flying2 six_dof:  71.9 %    indoor_flying2 six_dof:  79.9 %    indoor_flying2 six_dof:  87.9 %    indoor_flying2 six_dof:  95.8 %    indoor_flying2 six_dof: 100.0 %
+
+== Table 3, divergence AREE (%) under different protocols
+                                               drivi/if2    trans/if2    six_d/if2
+PAPER                                              84.80        28.23        56.12
+per event, all                                    212.16        81.88       120.27
+per event, median                                 103.35        28.69        95.73
+per event, error capped at 100 %                   88.92        40.19        79.61
+per event, |mu_gt| >= 0.01 1/s                    151.40        63.35       100.00
+   (% of events kept)                              99.37        99.37        99.37
+per event, |mu_gt| >= 0.02 1/s                    139.74        58.07        96.10
+   (% of events kept)                              98.48        98.48        98.48
+per event, |mu_gt| >= 0.05 1/s                    124.65        49.77        91.94
+   (% of events kept)                              94.66        94.66        94.66
+per event, |mu_gt| >= 0.1 1/s                     118.38        39.73        89.54
+   (% of events kept)                              83.26        83.26        83.26
+per event, |mu_gt| >= 0.2 1/s                     112.69        29.44        87.15
+   (% of events kept)                              60.83        60.83        60.83
+per event, frames |V_z| >= 0.05 m/s               136.51        54.16        94.27
+   (% of events kept)                              97.13        97.13        97.13
+per event, frames |V_z| >= 0.1 m/s                124.74        49.44        93.16
+   (% of events kept)                              92.88        92.88        92.88
+per event, frames |V_z| >= 0.2 m/s                118.37        43.85        92.39
+   (% of events kept)                              79.18        79.18        79.18
+TTC map at depth frames (<= 0.05 s old)           196.16        85.77       121.51
+   same, mean of per-frame AREE                  2859.28       211.03       181.34
+
+== per event, all events, by GT camera-velocity source
+GT velocity: odom_npz                             212.16        81.88       120.27
+GT velocity: poses                                212.16        81.88       120.27
+GT velocity: flow                                6743.84      6131.23       324.81
+
+(main rows use GT velocity: odom_npz)
+== indoor_flying3: 93.7 s
+  -- checks for indoor_flying3
+     GT flow gt.hdf5 vs npz: max |diff| 0.0000 px, median |hdf5|/|npz| 1.000
+     V_z median |.| [m/s]: odom.npz 0.255, ours from poses 0.255, implied by GT flow 0.143
+     median ratio (frames with clear forward motion): poses/odom.npz 1.000, flow/odom.npz 0.566
+     frames with |V_z| below 0.05 m/s: 17 %, 0.1 m/s: 28 %, 0.2 m/s: 42 %
+    indoor_flying3 driving:   8.3 %    indoor_flying3 driving:  16.7 %    indoor_flying3 driving:  25.0 %    indoor_flying3 driving:  33.3 %    indoor_flying3 driving:  41.7 %    indoor_flying3 driving:  50.0 %    indoor_flying3 driving:  58.3 %    indoor_flying3 driving:  66.7 %    indoor_flying3 driving:  75.0 %    indoor_flying3 driving:  83.3 %    indoor_flying3 driving:  91.7 %    indoor_flying3 driving: 100.0 %    indoor_flying3 driving: 100.0 %
+    indoor_flying3 translation:   8.3 %    indoor_flying3 translation:  16.7 %    indoor_flying3 translation:  25.0 %    indoor_flying3 translation:  33.3 %    indoor_flying3 translation:  41.7 %    indoor_flying3 translation:  50.0 %    indoor_flying3 translation:  58.3 %    indoor_flying3 translation:  66.7 %    indoor_flying3 translation:  75.0 %    indoor_flying3 translation:  83.3 %    indoor_flying3 translation:  91.7 %    indoor_flying3 translation: 100.0 %    indoor_flying3 translation: 100.0 %
+    indoor_flying3 six_dof:   8.3 %    indoor_flying3 six_dof:  16.7 %    indoor_flying3 six_dof:  25.0 %    indoor_flying3 six_dof:  33.3 %    indoor_flying3 six_dof:  41.7 %    indoor_flying3 six_dof:  50.0 %    indoor_flying3 six_dof:  58.3 %    indoor_flying3 six_dof:  66.7 %    indoor_flying3 six_dof:  75.0 %    indoor_flying3 six_dof:  83.3 %    indoor_flying3 six_dof:  91.7 %    indoor_flying3 six_dof: 100.0 %    indoor_flying3 six_dof: 100.0 %
+
+== Table 3, divergence AREE (%) under different protocols
+                                               drivi/if3    trans/if3    six_d/if3
+PAPER                                                nan          nan          nan
+per event, all                                    388.91       153.85       209.21
+per event, median                                 105.59        24.52        87.49
+per event, error capped at 100 %                   90.88        37.28        74.80
+per event, |mu_gt| >= 0.01 1/s                    172.17        59.49       106.23
+   (% of events kept)                              96.71        96.71        96.71
+per event, |mu_gt| >= 0.02 1/s                    151.52        48.30        98.72
+   (% of events kept)                              93.10        93.10        93.10
+per event, |mu_gt| >= 0.05 1/s                    137.84        39.32        88.06
+   (% of events kept)                              83.77        83.77        83.77
+per event, |mu_gt| >= 0.1 1/s                     124.56        32.31        83.96
+   (% of events kept)                              72.59        72.59        72.59
+per event, |mu_gt| >= 0.2 1/s                     106.39        25.11        82.56
+   (% of events kept)                              52.14        52.14        52.14
+per event, frames |V_z| >= 0.05 m/s               150.81        42.91        99.49
+   (% of events kept)                              92.14        92.14        92.14
+per event, frames |V_z| >= 0.1 m/s                141.58        35.75        91.94
+   (% of events kept)                              84.49        84.49        84.49
+per event, frames |V_z| >= 0.2 m/s                125.63        30.51        86.24
+   (% of events kept)                              70.63        70.63        70.63
+TTC map at depth frames (<= 0.05 s old)           397.21       166.97       213.69
+   same, mean of per-frame AREE                  5195.60       256.09       276.54
+
+== per event, all events, by GT camera-velocity source
+GT velocity: odom_npz                             388.91       153.85       209.21
+GT velocity: poses                                388.91       153.85       209.21
+GT velocity: flow                                 760.74       313.86       350.27
+
+(main rows use GT velocity: odom_npz)
+== indoor_flying1: 69.9 s
+  -- checks for indoor_flying1
+     GT flow gt.hdf5 vs npz: max |diff| 0.0000 px, median |hdf5|/|npz| 1.000
+     V_z median |.| [m/s]: odom.npz 0.233, ours from poses 0.233, implied by GT flow 0.125
+     median ratio (frames with clear forward motion): poses/odom.npz 1.000, flow/odom.npz 0.547
+     frames with |V_z| below 0.05 m/s: 13 %, 0.1 m/s: 25 %, 0.2 m/s: 40 %
+    indoor_flying1 driving:  14.2 %    indoor_flying1 driving:  28.4 %    indoor_flying1 driving:  42.6 %    indoor_flying1 driving:  56.9 %    indoor_flying1 driving:  71.1 %    indoor_flying1 driving:  85.3 %    indoor_flying1 driving:  99.5 %    indoor_flying1 driving: 100.0 %
+    indoor_flying1 translation:  14.2 %    indoor_flying1 translation:  28.4 %    indoor_flying1 translation:  42.6 %    indoor_flying1 translation:  56.9 %    indoor_flying1 translation:  71.1 %    indoor_flying1 translation:  85.3 %    indoor_flying1 translation:  99.5 %    indoor_flying1 translation: 100.0 %
+    indoor_flying1 six_dof:  14.2 %    indoor_flying1 six_dof:  28.4 %    indoor_flying1 six_dof:  42.6 %    indoor_flying1 six_dof:  56.9 %    indoor_flying1 six_dof:  71.1 %    indoor_flying1 six_dof:  85.3 %    indoor_flying1 six_dof:  99.5 %    indoor_flying1 six_dof: 100.0 %
+
+== Table 3, divergence AREE (%) under different protocols
+                                               drivi/if1    trans/if1    six_d/if1
+PAPER                                             153.30        19.82        53.65
+per event, all                                    315.52        66.77       113.15
+per event, median                                 120.33        23.82        83.24
+per event, error capped at 100 %                   82.94        36.08        69.28
+per event, |mu_gt| >= 0.01 1/s                    185.90        46.97        90.41
+   (% of events kept)                              98.10        98.10        98.10
+per event, |mu_gt| >= 0.02 1/s                    169.31        43.39        85.94
+   (% of events kept)                              95.62        95.62        95.62
+per event, |mu_gt| >= 0.05 1/s                    152.09        37.01        80.07
+   (% of events kept)                              86.02        86.02        86.02
+per event, |mu_gt| >= 0.1 1/s                     142.79        26.12        73.52
+   (% of events kept)                              65.23        65.23        65.23
+per event, |mu_gt| >= 0.2 1/s                     126.30        18.24        65.60
+   (% of events kept)                              34.95        34.95        34.95
+per event, frames |V_z| >= 0.05 m/s               173.31        44.78        88.03
+   (% of events kept)                              95.84        95.84        95.84
+per event, frames |V_z| >= 0.1 m/s                160.64        40.44        84.26
+   (% of events kept)                              89.83        89.83        89.83
+per event, frames |V_z| >= 0.2 m/s                153.49        38.62        80.07
+   (% of events kept)                              73.47        73.47        73.47
+TTC map at depth frames (<= 0.05 s old)           323.94        66.12       117.46
+   same, mean of per-frame AREE                   775.46       100.57       150.25
+
+== per event, all events, by GT camera-velocity source
+GT velocity: odom_npz                             315.52        66.77       113.15
+GT velocity: poses                                315.52        66.77       113.15
+GT velocity: flow                                 594.70       512.48       332.71
+
+(main rows use GT velocity: odom_npz)
+== outdoor_day1: 18.0 s
+  -- checks for outdoor_day1
+     GT flow gt.hdf5 vs npz: max |diff| 0.0000 px, median |hdf5|/|npz| 1.000
+     V_z median |.| [m/s]: odom.npz 6.654, ours from poses 6.673, implied by GT flow 4.348
+     median ratio (frames with clear forward motion): poses/odom.npz 1.003, flow/odom.npz 0.652
+     frames with |V_z| below 0.05 m/s: 0 %, 0.1 m/s: 0 %, 0.2 m/s: 0 %
+    outdoor_day1 driving:   2.0 %    outdoor_day1 driving:   4.0 %    outdoor_day1 driving:   6.0 %    outdoor_day1 driving:   8.0 %    outdoor_day1 driving:  10.0 %    outdoor_day1 driving:  12.0 %    outdoor_day1 driving:  14.0 %    outdoor_day1 driving:  16.0 %    outdoor_day1 driving:  18.0 %    outdoor_day1 driving:  20.0 %    outdoor_day1 driving:  22.0 %    outdoor_day1 driving:  24.0 %    outdoor_day1 driving:  26.0 %    outdoor_day1 driving:  28.0 %    outdoor_day1 driving:  30.0 %    outdoor_day1 driving:  32.0 %    outdoor_day1 driving:  33.9 %    outdoor_day1 driving:  35.9 %    outdoor_day1 driving:  37.9 %    outdoor_day1 driving:  39.9 %    outdoor_day1 driving:  41.9 %    outdoor_day1 driving:  43.9 %    outdoor_day1 driving:  45.9 %    outdoor_day1 driving:  47.9 %    outdoor_day1 driving:  49.9 %    outdoor_day1 driving:  51.9 %    outdoor_day1 driving:  53.9 %    outdoor_day1 driving:  55.9 %    outdoor_day1 driving:  57.9 %    outdoor_day1 driving:  59.9 %    outdoor_day1 driving:  61.9 %    outdoor_day1 driving:  63.9 %    outdoor_day1 driving:  65.9 %    outdoor_day1 driving:  67.9 %    outdoor_day1 driving:  69.9 %    outdoor_day1 driving:  71.9 %    outdoor_day1 driving:  73.9 %    outdoor_day1 driving:  75.9 %    outdoor_day1 driving:  77.9 %    outdoor_day1 driving:  79.9 %    outdoor_day1 driving:  81.9 %    outdoor_day1 driving:  83.9 %    outdoor_day1 driving:  85.9 %    outdoor_day1 driving:  87.9 %    outdoor_day1 driving:  89.9 %    outdoor_day1 driving:  91.9 %    outdoor_day1 driving:  93.9 %    outdoor_day1 driving:  95.9 %    outdoor_day1 driving:  97.8 %    outdoor_day1 driving:  99.8 %    outdoor_day1 driving: 100.0 %
+    outdoor_day1 translation:   2.0 %    outdoor_day1 translation:   4.0 %    outdoor_day1 translation:   6.0 %    outdoor_day1 translation:   8.0 %    outdoor_day1 translation:  10.0 %    outdoor_day1 translation:  12.0 %    outdoor_day1 translation:  14.0 %    outdoor_day1 translation:  16.0 %    outdoor_day1 translation:  18.0 %    outdoor_day1 translation:  20.0 %    outdoor_day1 translation:  22.0 %    outdoor_day1 translation:  24.0 %    outdoor_day1 translation:  26.0 %    outdoor_day1 translation:  28.0 %    outdoor_day1 translation:  30.0 %    outdoor_day1 translation:  32.0 %    outdoor_day1 translation:  33.9 %    outdoor_day1 translation:  35.9 %    outdoor_day1 translation:  37.9 %    outdoor_day1 translation:  39.9 %    outdoor_day1 translation:  41.9 %    outdoor_day1 translation:  43.9 %    outdoor_day1 translation:  45.9 %    outdoor_day1 translation:  47.9 %    outdoor_day1 translation:  49.9 %    outdoor_day1 translation:  51.9 %    outdoor_day1 translation:  53.9 %    outdoor_day1 translation:  55.9 %    outdoor_day1 translation:  57.9 %    outdoor_day1 translation:  59.9 %    outdoor_day1 translation:  61.9 %    outdoor_day1 translation:  63.9 %    outdoor_day1 translation:  65.9 %    outdoor_day1 translation:  67.9 %    outdoor_day1 translation:  69.9 %    outdoor_day1 translation:  71.9 %    outdoor_day1 translation:  73.9 %    outdoor_day1 translation:  75.9 %    outdoor_day1 translation:  77.9 %    outdoor_day1 translation:  79.9 %    outdoor_day1 translation:  81.9 %    outdoor_day1 translation:  83.9 %    outdoor_day1 translation:  85.9 %    outdoor_day1 translation:  87.9 %    outdoor_day1 translation:  89.9 %    outdoor_day1 translation:  91.9 %    outdoor_day1 translation:  93.9 %    outdoor_day1 translation:  95.9 %    outdoor_day1 translation:  97.8 %    outdoor_day1 translation:  99.8 %    outdoor_day1 translation: 100.0 %
+    outdoor_day1 six_dof:   2.0 %    outdoor_day1 six_dof:   4.0 %    outdoor_day1 six_dof:   6.0 %    outdoor_day1 six_dof:   8.0 %    outdoor_day1 six_dof:  10.0 %    outdoor_day1 six_dof:  12.0 %    outdoor_day1 six_dof:  14.0 %    outdoor_day1 six_dof:  16.0 %    outdoor_day1 six_dof:  18.0 %    outdoor_day1 six_dof:  20.0 %    outdoor_day1 six_dof:  22.0 %    outdoor_day1 six_dof:  24.0 %    outdoor_day1 six_dof:  26.0 %    outdoor_day1 six_dof:  28.0 %    outdoor_day1 six_dof:  30.0 %    outdoor_day1 six_dof:  32.0 %    outdoor_day1 six_dof:  33.9 %    outdoor_day1 six_dof:  35.9 %    outdoor_day1 six_dof:  37.9 %    outdoor_day1 six_dof:  39.9 %    outdoor_day1 six_dof:  41.9 %    outdoor_day1 six_dof:  43.9 %    outdoor_day1 six_dof:  45.9 %    outdoor_day1 six_dof:  47.9 %    outdoor_day1 six_dof:  49.9 %    outdoor_day1 six_dof:  51.9 %    outdoor_day1 six_dof:  53.9 %    outdoor_day1 six_dof:  55.9 %    outdoor_day1 six_dof:  57.9 %    outdoor_day1 six_dof:  59.9 %    outdoor_day1 six_dof:  61.9 %    outdoor_day1 six_dof:  63.9 %    outdoor_day1 six_dof:  65.9 %    outdoor_day1 six_dof:  67.9 %    outdoor_day1 six_dof:  69.9 %    outdoor_day1 six_dof:  71.9 %    outdoor_day1 six_dof:  73.9 %    outdoor_day1 six_dof:  75.9 %    outdoor_day1 six_dof:  77.9 %    outdoor_day1 six_dof:  79.9 %    outdoor_day1 six_dof:  81.9 %    outdoor_day1 six_dof:  83.9 %    outdoor_day1 six_dof:  85.9 %    outdoor_day1 six_dof:  87.9 %    outdoor_day1 six_dof:  89.9 %    outdoor_day1 six_dof:  91.9 %    outdoor_day1 six_dof:  93.9 %    outdoor_day1 six_dof:  95.9 %    outdoor_day1 six_dof:  97.8 %    outdoor_day1 six_dof:  99.8 %    outdoor_day1 six_dof: 100.0 %
+
+== Table 3, divergence AREE (%) under different protocols
+                                               drivi/od1    trans/od1    six_d/od1
+PAPER                                              47.27        45.78        56.66
+per event, all                                    105.45        54.31        66.83
+per event, median                                 101.75        43.98        53.74
+per event, error capped at 100 %                  100.00        46.36        53.73
+per event, |mu_gt| >= 0.01 1/s                    105.45        54.31        66.83
+   (% of events kept)                             100.00       100.00       100.00
+per event, |mu_gt| >= 0.02 1/s                    105.45        54.31        66.83
+   (% of events kept)                             100.00       100.00       100.00
+per event, |mu_gt| >= 0.05 1/s                    105.39        53.54        65.87
+   (% of events kept)                              99.73        99.73        99.73
+per event, |mu_gt| >= 0.1 1/s                     105.16        50.34        61.70
+   (% of events kept)                              98.05        98.05        98.05
+per event, |mu_gt| >= 0.2 1/s                     103.33        42.81        51.75
+   (% of events kept)                              81.09        81.10        81.10
+per event, frames |V_z| >= 0.05 m/s               105.45        54.31        66.83
+   (% of events kept)                             100.00       100.00       100.00
+per event, frames |V_z| >= 0.1 m/s                105.45        54.31        66.83
+   (% of events kept)                             100.00       100.00       100.00
+per event, frames |V_z| >= 0.2 m/s                105.45        54.31        66.83
+   (% of events kept)                             100.00       100.00       100.00
+TTC map at depth frames (<= 0.05 s old)           104.76        52.25        67.60
+   same, mean of per-frame AREE                   104.77        51.32        66.93
+
+== per event, all events, by GT camera-velocity source
+GT velocity: odom_npz                             105.45        54.31        66.83
+GT velocity: poses                                105.46        54.39        67.03
+GT velocity: flow                                 108.41        74.08        95.65
+
+(main rows use GT velocity: odom_npz)

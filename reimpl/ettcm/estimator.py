@@ -244,7 +244,7 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
 def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                fx, fy, cx, cy, s, w_thresh, l_theta, l_rho, n_iter, d_min,
                use_fast_exp, ctx_t, ctx_w, rho_map, mv, st_f, st_i,
-               out_rho, out_vx, out_vy, out_div, out_theta):
+               out_rho, out_vx, out_vy, out_div, out_theta, consistent_jac):
     """6-DOF with the official re-parameterisation (ParameterizedSixDOF).
 
     Same five steps as _run, written in the official code's sign convention
@@ -254,6 +254,13 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     own derivative (e.g. the lambda column is not multiplied by -dt): the
     paper's numbers were produced with it. Outputs are converted to the paper
     convention.
+
+    consistent_jac=True uses instead the true derivative of the residual
+    r = dx - dt * B_param(p_j, rho) m, with rho = exp(lambda):
+        dr/dm      = -dt * B_param(p_j, rho)
+        dr/dlambda = dt * rho * m2 * (p_x, p_y)
+    (not in the paper or the official code; a test of whether the official
+    Jacobian is why 6-DOF underestimates forward motion on MVSEC).
     """
     nm = 7                   # mv = (m0..m5, lambda), code convention (state)
     mv0 = np.zeros(nm)
@@ -334,18 +341,25 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                             vj = cam_map[yy, xx, 1]
                             pcx = uj - cx
                             pcy = vj - cy
-                            b_matrix_code6(pcx, pcy, fx, fy, rho, Bc)
-                            # Official ParameterizedSixDOF::jacobian = -dt * B_code6
-                            # but with fx, fy (NOT rho*fx, rho*fy) in columns 0, 1:
-                            # d(B_param m)/dm0 = fx, d/dm1 = fy.
-                            for m in range(6):
-                                J[0, m] = -dt * Bc[0, m]
-                                J[1, m] = -dt * Bc[1, m]
-                            J[0, 0] = -dt * fx
-                            J[1, 1] = -dt * fy
-                            J[0, 6] = Bc[0, 0] * v3[0] + Bc[0, 1] * v3[1] + Bc[0, 2] * v3[2]
-                            J[1, 6] = Bc[1, 0] * v3[0] + Bc[1, 1] * v3[1] + Bc[1, 2] * v3[2]
                             b_matrix_param(pcx, pcy, fx, fy, rho, B)
+                            if consistent_jac:
+                                for m in range(6):
+                                    J[0, m] = -dt * B[0, m]
+                                    J[1, m] = -dt * B[1, m]
+                                J[0, 6] = dt * rho * mv[2] * pcx
+                                J[1, 6] = dt * rho * mv[2] * pcy
+                            else:
+                                b_matrix_code6(pcx, pcy, fx, fy, rho, Bc)
+                                # Official ParameterizedSixDOF::jacobian = -dt * B_code6
+                                # but with fx, fy (NOT rho*fx, rho*fy) in columns 0, 1:
+                                # d(B_param m)/dm0 = fx, d/dm1 = fy.
+                                for m in range(6):
+                                    J[0, m] = -dt * Bc[0, m]
+                                    J[1, m] = -dt * Bc[1, m]
+                                J[0, 0] = -dt * fx
+                                J[1, 1] = -dt * fy
+                                J[0, 6] = Bc[0, 0] * v3[0] + Bc[0, 1] * v3[1] + Bc[0, 2] * v3[2]
+                                J[1, 6] = Bc[1, 0] * v3[0] + Bc[1, 1] * v3[1] + Bc[1, 2] * v3[2]
                             fvx = 0.0
                             fvy = 0.0
                             for m in range(6):
@@ -436,7 +450,8 @@ class EttcmState:
 
 
 def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
-              l_rho=1.0, n_iter=2, d_min=1e-4, fast_exp=True, state=None):
+              l_rho=1.0, n_iter=2, d_min=1e-4, fast_exp=True, state=None,
+              six_dof_jacobian="official"):
     """Run the estimator on a (rectified) event stream.
 
     fast_exp=True uses the official build's approximate exp() for the residual
@@ -444,6 +459,8 @@ def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
     fast_exp=False uses the exact exp().
 
     state: an EttcmState to continue from (and update); None = fresh start.
+    six_dof_jacobian: "official" (as the C++, used for the paper's Table 2) or
+    "consistent" (the true derivative of the model; see _run_param).
     Event timestamps must keep increasing across calls that share a state.
 
     Returns a dict of per-event arrays: rho, vx, vy (px/s), div (global divergence
@@ -467,7 +484,8 @@ def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
     outs = (out_rho, out_vx, out_vy, out_div, out_theta)
     if model == SIX_DOF:
         _run_param(*args, *hyper, state.ctx_t, state.ctx_w, state.rho_map,
-                   state.motion, state.st_f, state.st_i, *outs)
+                   state.motion, state.st_f, state.st_i, *outs,
+                   {"official": False, "consistent": True}[six_dof_jacobian])
     else:
         _run(*args, model, *hyper, state.ctx_t, state.ctx_w, state.rho_map,
              state.motion[:n_vars(model)], state.st_f, state.st_i, *outs)

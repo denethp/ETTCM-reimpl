@@ -1,0 +1,217 @@
+
+######## MVSEC (Tables 3-5): ../datasets/MVSEC
+== files under ../datasets/MVSEC
+  indoor_flying1_data.hdf5                                   1.70 GB
+  indoor_flying1_gt.hdf5                                     3.37 GB
+  indoor_flying1_gt_flow_dist.npz                            2.01 GB
+  indoor_flying1_odom.npz                                    0.00 GB
+  indoor_flying2_data.hdf5                                   2.53 GB
+  indoor_flying2_gt.hdf5                                     4.28 GB
+  indoor_flying2_gt_flow_dist.npz                            2.43 GB
+  indoor_flying2_odom.npz                                    0.00 GB
+  indoor_flying3_data.hdf5                                   2.63 GB
+  indoor_flying3_gt.hdf5                                     4.45 GB
+  indoor_flying3_gt_flow_dist.npz                            2.70 GB
+  indoor_flying3_odom.npz                                    0.00 GB
+  indoor_flying_calib.zip                                    0.00 GB
+  outdoor_day1_data.hdf5                                    12.14 GB
+  outdoor_day1_gt.hdf5                                       6.27 GB
+  outdoor_day1_gt_flow_dist.npz                              7.39 GB
+  outdoor_day1_odom.npz                                      0.00 GB
+  outdoor_day_calib.zip                                      0.00 GB
+
+== calibration indoor_flying
+  zip contents: ['camchain-imucam-indoor_flying.yaml', 'indoor_flying_left_x_map.txt', 'indoor_flying_left_y_map.txt', 'indoor_flying_right_x_map.txt', 'indoor_flying_right_y_map.txt']
+  resolution 346x260; rectified fx=199.653 fy=199.653 cx=177.433 cy=126.812
+  distortion equidistant [-0.048031442223833355, 0.011330957517194437, -0.055378166304281135, 0.021500973881459395]
+  map raw(0,0) -> [-106.6652  -83.8143], raw(173,130) -> [175.9247 124.5318]
+
+== calibration outdoor_day
+  zip contents: ['camchain-imucam-outdoor_day.yaml', 'outdoor_day_left_x_map.txt', 'outdoor_day_left_y_map.txt', 'outdoor_day_right_x_map.txt', 'outdoor_day_right_y_map.txt']
+  resolution 346x260; rectified fx=194.839 fy=194.839 cx=170.209 cy=127.004
+  distortion equidistant [-0.033904378348448685, -0.01537260902537579, -0.022284741346941413, 0.0069204143687187645]
+  map raw(0,0) -> [-86.3044 -62.5023], raw(173,130) -> [172.3263 129.4848]
+
+== indoor_flying1
+  data: ../datasets/MVSEC/indoor_flying1_data.hdf5
+    davis/left/events                             (14071304, 4)          float64
+    davis/left/image_raw                          (2206, 260, 346)       uint8
+    davis/left/image_raw_event_inds               (2206,)                int64
+    davis/left/image_raw_ts                       (2206,)                float64
+    davis/left/imu                                (70355, 6)             float64
+    davis/left/imu_ts                             (70355,)               float64
+    davis/right/events                            (12005558, 4)          float64
+    davis/right/image_raw                         (2206, 260, 346)       uint8
+    davis/right/image_raw_event_inds              (2206,)                int64
+    davis/right/image_raw_ts                      (2206,)                float64
+    davis/right/imu                               (70139, 6)             float64
+    davis/right/imu_ts                            (70139,)               float64
+    velodyne/scans                                (1406, 22640, 4)       float32
+    velodyne/scans_ts                             (1406,)                float64
+  first events: x=[336 172 289 343 217] y=[126 239  86 210 170] p=[1 1 1 1 1]
+  events: 14071304, t 1504645177.425 .. 1504645247.715 s
+  gray frames: 2206 stamps, 1504645177.449 .. 1504645247.699 s (70.2 s), ~31.4 Hz
+  npz member timestamps.npy           0.00 GB  stored
+  npz member y_flow_dist.npy          1.01 GB  stored
+  npz member x_flow_dist.npy          1.01 GB  stored
+  gt flow: (1399, 260, 346) float64; all 1399 stamps, 1504645177.711 .. 1504645247.621 s (69.9 s), ~20.0 Hz
+  evaluated window:     0.3 ..    70.2 s after start = 69.9 s
+  frame 699: non-zero flow at 68.0 % of pixels, |u| median 1.892 px
+  gt: ../datasets/MVSEC/indoor_flying1_gt.hdf5
+    davis/left/blended_image_rect                 (1399, 260, 346, 3)    uint8
+    davis/left/blended_image_rect_ts              (1399,)                float64
+    davis/left/depth_image_raw                    (1399, 260, 346)       float32
+    davis/left/depth_image_raw_ts                 (1399,)                float64
+    davis/left/depth_image_rect                   (1399, 260, 346)       float32
+    davis/left/depth_image_rect_ts                (1399,)                float64
+    davis/left/flow_dist                          (1399, 2, 260, 346)    float64
+    davis/left/flow_dist_ts                       (1399,)                float64
+    davis/left/odometry                           (1401, 4, 4)           float64
+    davis/left/odometry_ts                        (1401,)                float64
+    davis/left/pose                               (5695, 4, 4)           float64
+    davis/left/pose_ts                            (5695,)                float64
+    davis/right/blended_image_rect                (1399, 260, 346, 3)    uint8
+    davis/right/blended_image_rect_ts             (1399,)                float64
+    davis/right/depth_image_raw                   (1399, 260, 346)       float32
+    davis/right/depth_image_raw_ts                (1399,)                float64
+    davis/right/depth_image_rect                  (1399, 260, 346)       float32
+    davis/right/depth_image_rect_ts               (1399,)                float64
+  odom.npz: ['ang_vel', 'lin_vel', 'pos', 'quat', 'timestamps'], lin_vel (1399, 3); 1399 stamps, 1504645177.711 .. 1504645247.621 s (69.9 s), ~20.0 Hz
+
+== indoor_flying2
+  data: ../datasets/MVSEC/indoor_flying2_data.hdf5
+    davis/left/events                             (25043556, 4)          float64
+    davis/left/image_raw                          (2665, 260, 346)       uint8
+    davis/left/image_raw_event_inds               (2665,)                int64
+    davis/left/image_raw_ts                       (2665,)                float64
+    davis/left/imu                                (84963, 6)             float64
+    davis/left/imu_ts                             (84963,)               float64
+    davis/right/events                            (21431349, 4)          float64
+    davis/right/image_raw                         (2664, 260, 346)       uint8
+    davis/right/image_raw_event_inds              (2664,)                int64
+    davis/right/image_raw_ts                      (2664,)                float64
+    davis/right/imu                               (84730, 6)             float64
+    davis/right/imu_ts                            (84730,)               float64
+    velodyne/scans                                (1698, 22682, 4)       float32
+    velodyne/scans_ts                             (1698,)                float64
+  first events: x=[255 331  48 243 305] y=[118 251 111 171  46] p=[1 0 1 1 0]
+  events: 25043556, t 1504645267.716 .. 1504645352.655 s
+  gray frames: 2665 stamps, 1504645267.739 .. 1504645352.612 s (84.9 s), ~31.4 Hz
+  npz member timestamps.npy           0.00 GB  stored
+  npz member y_flow_dist.npy          1.22 GB  stored
+  npz member x_flow_dist.npy          1.22 GB  stored
+  gt flow: (1691, 260, 346) float64; all 1691 stamps, 1504645268.012 .. 1504645352.519 s (84.5 s), ~20.0 Hz
+  evaluated window:     0.3 ..    84.8 s after start = 84.5 s
+  frame 845: non-zero flow at 96.2 % of pixels, |u| median 1.385 px
+  gt: ../datasets/MVSEC/indoor_flying2_gt.hdf5
+    davis/left/blended_image_rect                 (1691, 260, 346, 3)    uint8
+    davis/left/blended_image_rect_ts              (1691,)                float64
+    davis/left/depth_image_raw                    (1691, 260, 346)       float32
+    davis/left/depth_image_raw_ts                 (1691,)                float64
+    davis/left/depth_image_rect                   (1691, 260, 346)       float32
+    davis/left/depth_image_rect_ts                (1691,)                float64
+    davis/left/flow_dist                          (1691, 2, 260, 346)    float64
+    davis/left/flow_dist_ts                       (1691,)                float64
+    davis/left/odometry                           (1693, 4, 4)           float64
+    davis/left/odometry_ts                        (1693,)                float64
+    davis/left/pose                               (7052, 4, 4)           float64
+    davis/left/pose_ts                            (7052,)                float64
+    davis/right/blended_image_rect                (1691, 260, 346, 3)    uint8
+    davis/right/blended_image_rect_ts             (1691,)                float64
+    davis/right/depth_image_raw                   (1691, 260, 346)       float32
+    davis/right/depth_image_raw_ts                (1691,)                float64
+    davis/right/depth_image_rect                  (1691, 260, 346)       float32
+    davis/right/depth_image_rect_ts               (1691,)                float64
+  odom.npz: ['ang_vel', 'lin_vel', 'pos', 'quat', 'timestamps'], lin_vel (1691, 3); 1691 stamps, 1504645268.012 .. 1504645352.519 s (84.5 s), ~20.0 Hz
+
+== indoor_flying3
+  data: ../datasets/MVSEC/indoor_flying3_data.hdf5
+    davis/left/events                             (24004247, 4)          float64
+    davis/left/image_raw                          (2952, 260, 346)       uint8
+    davis/left/image_raw_event_inds               (2952,)                int64
+    davis/left/image_raw_ts                       (2952,)                float64
+    davis/left/imu                                (94117, 6)             float64
+    davis/left/imu_ts                             (94117,)               float64
+    davis/right/events                            (21875584, 4)          float64
+    davis/right/image_raw                         (2952, 260, 346)       uint8
+    davis/right/image_raw_event_inds              (2952,)                int64
+    davis/right/image_raw_ts                      (2952,)                float64
+    davis/right/imu                               (93862, 6)             float64
+    davis/right/imu_ts                            (93862,)               float64
+    velodyne/scans                                (1881, 22668, 4)       float32
+    velodyne/scans_ts                             (1881,)                float64
+  first events: x=[254 172 159 289   5] y=[ 30 239 233 141 168] p=[1 1 1 1 1]
+  events: 24004247, t 1504645443.086 .. 1504645537.115 s
+  gray frames: 2952 stamps, 1504645443.092 .. 1504645537.109 s (94.0 s), ~31.4 Hz
+  npz member timestamps.npy           0.00 GB  stored
+  npz member y_flow_dist.npy          1.35 GB  stored
+  npz member x_flow_dist.npy          1.35 GB  stored
+  gt flow: (1874, 260, 346) float64; all 1874 stamps, 1504645443.357 .. 1504645537.016 s (93.7 s), ~20.0 Hz
+  evaluated window:     0.3 ..    93.9 s after start = 93.7 s
+  frame 937: non-zero flow at 73.3 % of pixels, |u| median 0.774 px
+  gt: ../datasets/MVSEC/indoor_flying3_gt.hdf5
+    davis/left/blended_image_rect                 (1874, 260, 346, 3)    uint8
+    davis/left/blended_image_rect_ts              (1874,)                float64
+    davis/left/depth_image_raw                    (1874, 260, 346)       float32
+    davis/left/depth_image_raw_ts                 (1874,)                float64
+    davis/left/depth_image_rect                   (1874, 260, 346)       float32
+    davis/left/depth_image_rect_ts                (1874,)                float64
+    davis/left/flow_dist                          (1874, 2, 260, 346)    float64
+    davis/left/flow_dist_ts                       (1874,)                float64
+    davis/left/odometry                           (1876, 4, 4)           float64
+    davis/left/odometry_ts                        (1876,)                float64
+    davis/left/pose                               (7902, 4, 4)           float64
+    davis/left/pose_ts                            (7902,)                float64
+    davis/right/blended_image_rect                (1874, 260, 346, 3)    uint8
+    davis/right/blended_image_rect_ts             (1874,)                float64
+    davis/right/depth_image_raw                   (1874, 260, 346)       float32
+    davis/right/depth_image_raw_ts                (1874,)                float64
+    davis/right/depth_image_rect                  (1874, 260, 346)       float32
+    davis/right/depth_image_rect_ts               (1874,)                float64
+  odom.npz: ['ang_vel', 'lin_vel', 'pos', 'quat', 'timestamps'], lin_vel (1874, 3); 1874 stamps, 1504645443.357 .. 1504645537.016 s (93.7 s), ~20.0 Hz
+
+== outdoor_day1
+  data: ../datasets/MVSEC/outdoor_day1_data.hdf5
+    davis/left/events                             (105874257, 4)         float64
+    davis/left/image_raw                          (11937, 260, 346)      uint8
+    davis/left/image_raw_event_inds               (11937,)               int64
+    davis/left/image_raw_ts                       (11937,)               float64
+    davis/left/imu                                (262005, 6)            float64
+    davis/left/imu_ts                             (262005,)              float64
+    davis/right/events                            (96586496, 4)          float64
+    davis/right/imu                               (261358, 6)            float64
+    davis/right/imu_ts                            (261358,)              float64
+    velodyne/scans                                (5238, 24006, 4)       float32
+    velodyne/scans_ts                             (5238,)                float64
+    visensor/imu                                  (52380, 6)             float64
+    visensor/imu_ts                               (52380,)               float64
+    visensor/left/image_raw                       (5238, 480, 752)       uint8
+    visensor/left/image_raw_ts                    (5238,)                float64
+    visensor/right/image_raw                      (5238, 480, 752)       uint8
+    visensor/right/image_raw_ts                   (5238,)                float64
+  first events: x=[143   3 106  59  51] y=[ 54 129  53 125 253] p=[1 0 1 1 1]
+  events: 105874257, t 1506117897.196 .. 1506118159.085 s
+  gray frames: 11937 stamps, 1506117897.187 .. 1506118159.078 s (261.9 s), ~45.5 Hz
+  npz member timestamps.npy           0.00 GB  stored
+  npz member y_flow_dist.npy          3.69 GB  stored
+  npz member x_flow_dist.npy          3.69 GB  stored
+  gt flow: (5134, 260, 346) float64; all 5134 stamps, 1506117902.290 .. 1506118159.034 s (256.7 s), ~20.0 Hz
+  evaluated window:   222.4 ..   240.4 s after start = 18.0 s
+  frame 2567: non-zero flow at 41.2 % of pixels, |u| median 2.313 px
+  gt: ../datasets/MVSEC/outdoor_day1_gt.hdf5
+    davis/left/blended_image_rect                 (5134, 260, 346, 3)    uint8
+    davis/left/blended_image_rect_ts              (5134,)                float64
+    davis/left/depth_image_raw                    (5134, 260, 346)       float32
+    davis/left/depth_image_raw_ts                 (5134,)                float64
+    davis/left/depth_image_rect                   (5134, 260, 346)       float32
+    davis/left/depth_image_rect_ts                (5134,)                float64
+    davis/left/flow_dist                          (5134, 2, 260, 346)    float64
+    davis/left/flow_dist_ts                       (5134,)                float64
+    davis/left/odometry                           (5137, 4, 4)           float64
+    davis/left/odometry_ts                        (5137,)                float64
+    davis/left/pose                               (4484, 4, 4)           float64
+    davis/left/pose_ts                            (4484,)                float64
+  odom.npz: ['ang_vel', 'lin_vel', 'pos', 'quat', 'timestamps'], lin_vel (5134, 3); 5134 stamps, 1506117902.290 .. 1506118159.034 s (256.7 s), ~20.0 Hz
+
+######## summary
+  all files found and readable

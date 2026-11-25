@@ -1,0 +1,72 @@
+== indoor_flying1  model=driving  s=3  l_theta=100.0
+
+  evaluated 69.9 s, 11989493 events, 100.0 % with an estimate, 3.40 us/event, 2193 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.35     6.93   243.43    48.15
+  paper          1.40     7.50        -        -
+== indoor_flying1  model=translation  s=3  l_theta=100.0
+
+  evaluated 69.9 s, 11989493 events, 100.0 % with an estimate, 3.49 us/event, 2193 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.66     0.87    57.03    13.66
+  paper          0.63     0.41        -        -
+== indoor_flying1  model=six_dof  s=3  l_theta=100.0
+
+  evaluated 69.9 s, 11989493 events, 100.0 % with an estimate, 5.22 us/event, 2193 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.84     1.79    76.66    19.97
+  paper          0.88     1.97        -        -
+== indoor_flying2  model=driving  s=3  l_theta=100.0
+
+  evaluated 84.5 s, 21378268 events, 100.0 % with an estimate, 3.60 us/event, 2652 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           2.47    27.36   425.55    57.98
+  paper          2.42    26.32        -        -
+== indoor_flying2  model=translation  s=3  l_theta=100.0
+
+  evaluated 84.5 s, 21378268 events, 100.0 % with an estimate, 3.84 us/event, 2652 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.19     6.48    62.83    15.22
+  paper          0.94     2.83        -        -
+== indoor_flying2  model=six_dof  s=3  l_theta=100.0
+
+  evaluated 84.5 s, 21378268 events, 100.0 % with an estimate, 5.18 us/event, 2652 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.60    10.77    96.35    20.92
+  paper          1.60    12.02        -        -
+== indoor_flying3  model=driving  s=3  l_theta=100.0
+
+  evaluated 93.6 s, 20605852 events, 100.0 % with an estimate, 3.10 us/event, 2939 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           2.16    26.78   362.85    60.75
+  paper          2.14    26.05   104.05    60.36
+== indoor_flying3  model=translation  s=3  l_theta=100.0
+
+  evaluated 93.6 s, 20605852 events, 100.0 % with an estimate, 3.64 us/event, 2939 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.94     3.69    50.90    12.12
+  paper          0.79     1.65    44.46    11.38
+== indoor_flying3  model=six_dof  s=3  l_theta=100.0
+
+  evaluated 93.6 s, 20605852 events, 100.0 % with an estimate, 5.23 us/event, 2939 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.38     8.66    84.35    21.41
+  paper          1.38     9.99    95.23    21.35
+== outdoor_day1  model=driving  s=3  l_theta=100.0
+
+  evaluated 18.0 s, 5536076 events, 100.0 % with an estimate, 3.25 us/event, 818 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.59     1.25    87.27    15.11
+  paper          0.39     0.12    50.25    13.31
+== outdoor_day1  model=translation  s=3  l_theta=100.0
+
+  evaluated 18.0 s, 5536076 events, 100.0 % with an estimate, 3.46 us/event, 818 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.67     1.59    92.73    21.95
+  paper          0.55     0.97    72.67    21.77
+== outdoor_day1  model=six_dof  s=3  l_theta=100.0
+
+  evaluated 18.0 s, 5536076 events, 100.0 % with an estimate, 4.89 us/event, 818 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.76     1.83   120.17    22.42
+  paper          0.81     2.26   122.04    31.68

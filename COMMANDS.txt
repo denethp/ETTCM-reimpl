@@ -1,0 +1,151 @@
+ETTCM re-implementation: all commands
+=======================================
+
+Every command below is run from the reimpl/ folder with the virtual environment active.
+Times are on our laptop. The first run of a script pauses for a few seconds while Numba
+compiles the estimator; that is normal.
+
+WARNING: --csv APPENDS rows to a results file. Leave it out for demos, or you get
+duplicate rows. Figure commands with --out ../figures/... OVERWRITE the saved figures;
+for a demo write to another folder (e.g. ../demo_out/, created automatically).
+
+
+0. SET-UP
+---------
+Every time you open a terminal:
+
+    cd ~/ettcm-project/ETTCM-reimpl/reimpl
+    source .venv/bin/activate
+
+First time only, on a new machine:
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+
+Help for any script (lists all its options):
+
+    python scripts/table2_vl.py --help
+
+
+1. CHECKS (seconds each)
+------------------------
+    python tests/test_io.py              # .es reader/writer round trip
+    python tests/test_models.py          # motion models vs brute-force 3D projection
+    python tests/test_chunks.py          # processing in chunks == one long run
+    python tests/test_sampling.py        # event sampling + reduced camera (Table 6)
+
+    python scripts/check_data.py         # are all dataset files there and readable?
+    python scripts/check_data.py --mvsec ''     # VL only
+    python scripts/check_data.py --vl ''        # MVSEC only
+
+
+2. TABLE 2: TTC / divergence on VL (Ventral Landing)
+----------------------------------------------------
+Prints our error next to the paper's for each of the 8 sequences, plus µs/event.
+
+    # one row (~1 min)  <-- best for a demo
+    python scripts/table2_vl.py --data ../datasets/VL --model translation -s 2
+
+    # other rows: --model scaling | translation | six_dof,  -s 2 | 3
+    python scripts/table2_vl.py --data ../datasets/VL --model scaling -s 2
+    python scripts/table2_vl.py --data ../datasets/VL --model six_dof -s 3
+
+    # all 6 rows (~6-8 min)
+    python scripts/table2_vl.py --data ../datasets/VL --all
+
+    # 6-DOF with the mathematically correct Jacobian instead of the official C++ one
+    python scripts/table2_vl.py --data ../datasets/VL --model six_dof -s 2 --jacobian consistent
+
+    # save results (appends to the CSV)
+    python scripts/table2_vl.py --data ../datasets/VL --all --csv ../results_python_vl.csv
+
+
+3. FIG. 1: runtime vs accuracy (uses the Table 2 CSV, seconds)
+--------------------------------------------------------------
+    python scripts/fig1_runtime.py --csv ../results_python_vl.csv --out ../demo_out/fig1_runtime.png
+    # regenerate the saved figure:
+    python scripts/fig1_runtime.py --csv ../results_python_vl.csv --out ../figures/fig1_runtime.png
+
+
+4. SUPPLEMENTARY TABLE 6 / FIG. 8: fewer events (resolution reduction r)
+------------------------------------------------------------------------
+    # small run: one model, one s, r = 1..4
+    python scripts/table6_vl.py --data ../datasets/VL --model translation -s 2 --r 1,2,3,4
+
+    # everything: 3 models x s {2,3} x r {1,2,3,4}, in parallel (~10 min)
+    python scripts/table6_vl.py --data ../datasets/VL --csv ../results_python_vl_table6.csv \
+        --plot ../figures/fig8_resolution.png
+
+    # options: --r 1,2,3,4   -s 2,3   --model scaling|translation|six_dof|all   --jobs N
+
+
+5. TABLES 4 AND 5: optical flow on MVSEC
+----------------------------------------
+Prints AEE, Out, AREE, AAE next to the paper's.
+Sequences: indoor_flying1 | indoor_flying2 | indoor_flying3 | outdoor_day1 | all
+Models:    driving | translation | six_dof | all
+
+    # quick try, first 5 seconds only (under a minute)  <-- good for a demo
+    python scripts/tables45_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation --max-seconds 5
+
+    # one full sequence, one model (a few minutes)
+    python scripts/tables45_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation
+
+    # everything: 4 sequences x 3 models (long)
+    python scripts/tables45_mvsec.py --data ../datasets/MVSEC --seq all --model all
+
+    # save results (appends to the CSV)
+    python scripts/tables45_mvsec.py --data ../datasets/MVSEC --seq all --model all --csv ../results_python_mvsec.csv
+
+    # other options
+    #   -s 3               neighbourhood size (paper: 3)
+    #   --l-theta 100      motion prior (paper: 100 on MVSEC)
+    #   --jacobian consistent    6-DOF with the correct Jacobian
+    #   --cold             outdoor_day1: start at 222.4 s instead of the recording start
+    #   --init-nu-z 1      starting forward speed (+ = forward)
+
+
+6. TABLE 3: divergence (TTC) on MVSEC
+-------------------------------------
+Prints the error under several scoring rules (plain mean, median, thresholds, ...)
+plus ground-truth data checks.
+
+    # quick try, first 5 seconds only
+    python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation --max-seconds 5
+
+    # one sequence, one model (a few minutes)
+    python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation
+
+    # the paper's three columns x 3 models (long)
+    python scripts/table3_mvsec.py --data ../datasets/MVSEC
+
+    # indoor_flying3 (not in the paper's table, see README Section 7)
+    python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying3
+
+
+7. FIGURES 4, 5, 6: qualitative maps (events / flow / depth or TTC)
+-------------------------------------------------------------------
+    # Fig. 4: ECD slider_depth, depth map
+    python scripts/figures.py --dataset ecd --data ../datasets/ECD --seq slider_depth \
+        --model translation --t 2.7 --window 0.05 --out ../demo_out/fig4_slider_depth.png
+
+    # Fig. 5: MVSEC indoor_flying1, TTC map (no ground-truth panels)
+    python scripts/figures.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation \
+        --t 16.2 --warmup 2 --no-gt --out ../demo_out/fig5_if1.png
+
+    # Fig. 6: one row per MVSEC sequence, with ground-truth flow and TTC
+    python scripts/figures.py --data ../datasets/MVSEC --model translation \
+        --seq indoor_flying1,indoor_flying2,indoor_flying3,outdoor_day1 --t 16,11.25,51.5,8 \
+        --warmup 2 --out ../demo_out/fig6_translation.png
+
+    # options: --t <seconds>   --window <s of events shown>   --warmup <s run before t>
+    #          --model scaling|translation|six_dof|driving   -s <size>
+    # to regenerate the saved figures, change --out to ../figures/<same name>.png
+
+
+8. SAVE WHAT A SCRIPT PRINTS
+----------------------------
+Add  | tee <file>  to any command, e.g.
+
+    python scripts/table2_vl.py --data ../datasets/VL --model translation -s 2 | tee ../demo_table2.txt

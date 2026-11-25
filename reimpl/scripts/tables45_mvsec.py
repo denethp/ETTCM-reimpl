@@ -27,7 +27,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from ettcm import mvsec as M  # noqa: E402
-from ettcm.estimator import EttcmState, run_ettcm  # noqa: E402
+from ettcm.estimator import run_ettcm  # noqa: E402
 from ettcm.io_es import EVENT_DTYPE  # noqa: E402
 from ettcm.models import MODEL_IDS  # noqa: E402
 
@@ -53,11 +53,14 @@ def evaluate(args, seq, model):
         raise RuntimeError(f"{seq}: fewer than 2 grayscale frames in the evaluation window")
 
     # warm start: outdoor_day1 from the start of the recording, indoor sequences are whole
-    i0 = 0 if (seq == "outdoor_day1" and not args.cold) else evf.index_of_time(edges[0])
+    if seq == "outdoor_day1" and not args.cold:
+        i0 = evf.index_of_time(t_rec0 + args.start)
+    else:
+        i0 = evf.index_of_time(edges[0])
     i1 = evf.index_of_time(edges[-1])
     t0 = evf.time(i0)
-    state = EttcmState(W, H)
     mid = MODEL_IDS[model]
+    state = M.initial_state(cam, mid, seq, args.init_nu_z)
 
     metrics = M.FlowMetrics()
     pending = {}          # interval k -> (list of pred, list of gt)
@@ -88,7 +91,8 @@ def evaluate(args, seq, model):
         ev["x"], ev["y"], ev["p"] = x, y, p
         tic = time.perf_counter()
         out = run_ettcm(ev, xr, yr, cam, mid, s=args.s, w_thresh=0.01,
-                        l_theta=args.l_theta, l_rho=1.0, state=state)
+                        l_theta=args.l_theta, l_rho=1.0, state=state,
+                        six_dof_jacobian=args.jacobian)
         t_run += time.perf_counter() - tic
 
         k_ev = np.searchsorted(edges, t, side="right") - 1
@@ -151,6 +155,12 @@ def main():
     ap.add_argument("--l-theta", type=float, default=100.0)
     ap.add_argument("--cold", action="store_true",
                     help="outdoor_day1: start the estimator at 222.4 s instead of the recording start")
+    ap.add_argument("--start", type=float, default=0.0,
+                    help="outdoor_day1 warm start: seconds after the recording start to begin at")
+    ap.add_argument("--init-nu-z", type=float, default=None,
+                    help="initial nu_z (paper sign, + = forward). Default: +1 for Driving on outdoor_day1, else 0")
+    ap.add_argument("--jacobian", default="official", choices=["official", "consistent"],
+                    help="6-DOF Gauss-Newton Jacobian: as the official C++ or the model's true derivative")
     ap.add_argument("--max-seconds", type=float, default=0.0, help="only the first N seconds (tests)")
     ap.add_argument("--chunk", type=int, default=2_000_000, help="events per chunk")
     ap.add_argument("--csv", default=None, help="append results to this CSV file")

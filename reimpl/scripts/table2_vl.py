@@ -40,12 +40,12 @@ PAPER_REE = {
 ALL_MODELS = ["scaling", "translation", "six_dof"]
 
 
-def run_one(seq_dir, cam, model, s):
+def run_one(seq_dir, cam, model, s, jacobian="official"):
     ev, w, h, ts, div_gt = read_vl_sequence(seq_dir)
     ev, xr, yr = rectify_events(ev, cam)
     t0 = time.perf_counter()
     out = run_ettcm(ev, xr, yr, cam, MODEL_IDS[model], s=s, w_thresh=0.01,
-                    l_theta=1000.0, l_rho=1.0)
+                    l_theta=1000.0, l_rho=1.0, six_dof_jacobian=jacobian)
     us = 1e6 * (time.perf_counter() - t0) / len(ev)
     ree, _, _ = ree_at_timestamps(ev["t"], out["div"], out["rho"], ts, div_gt)
     return ree, us, len(ev)
@@ -58,6 +58,8 @@ def main():
     ap.add_argument("-s", type=int, default=2, choices=(2, 3))
     ap.add_argument("--all", action="store_true", help="all 3 models x s in {2, 3}")
     ap.add_argument("--csv", default=None, help="append results to this CSV file")
+    ap.add_argument("--jacobian", default="official", choices=["official", "consistent"],
+                    help="6-DOF Gauss-Newton Jacobian: as the official C++ or the model's true derivative")
     args = ap.parse_args()
 
     cam = make_camera(os.path.join(args.data, "calib.txt"))
@@ -73,7 +75,7 @@ def main():
         paper = PAPER_REE[(model, s)]
         for d in seqs:
             name = os.path.basename(d)
-            ree, us, n = run_one(d, cam, model, s)
+            ree, us, n = run_one(d, cam, model, s, args.jacobian)
             rees.append(ree)
             ref = f"{paper[SEQS.index(name)]:7.2f}" if name in SEQS else "      -"
             print(f"  {name:6s} {ree:7.2f} {ref}   {us:8.2f}   ({n} events)", flush=True)

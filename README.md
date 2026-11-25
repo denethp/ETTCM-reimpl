@@ -54,11 +54,15 @@ Motion models: **Scaling** (ν_z), **Translation** (ν), **Driving** (ν_z, ω_y
 | Table 4: optical flow AEE / Out | MVSEC | **Reproduced.** Driving and 6-DOF within 0.05 px indoors; Translation 0.03–0.25 px worse; outdoor Driving 0.59 vs 0.39 |
 | Table 5: optical flow AREE / AAE | MVSEC | **Mostly reproduced.** AAE (direction) within ~2° everywhere; AREE close for Translation and 6-DOF; Driving's AREE much higher |
 | Table 3: divergence (TTC) AREE | MVSEC | **Partly reproduced.** Translation matches when near-zero ground truth is handled; outdoor is in the right range for all models; 6-DOF and Driving indoors do not match. See [Section 7](#7-table-3-the-open-problem) |
-| Fig. 5/6: flow and TTC maps | MVSEC | Script ready (`figures.py`), not yet compared with the paper's figures |
+| Table 6 + Fig. 8 (supplementary): REE vs resolution reduction r | VL | **Reproduced.** 23 of 24 averages within 0.08 of the paper |
+| Fig. 1: runtime vs accuracy | VL | **Reproduced** (`figures/fig1_runtime.png`); our points sit on the paper's "Proposed" |
+| Fig. 4: flow and depth, `slider_depth` | ECD | **Made** (`figures/fig4_slider_depth.png`); near/far structure as in the paper |
+| Fig. 5/6: flow and TTC maps | MVSEC | **Made** (`figures/fig5_if1.png`, `figures/fig6_translation.png`); estimated TTC and flow maps track the GT maps |
 | Per-event agreement with the official C++ | VL | **Identical up to rounding** (~1e-7 relative, against a double-precision build), all models |
 
 In one sentence: **the estimator is a faithful copy of the authors' method (it matches their code
-event by event), Tables 2, 4 and 5 come out close to the paper, and Table 3 can only be partly
+event by event); Tables 2 and 6 and Fig. 1/8 reproduce to within rounding, Tables 4 and 5 come
+out close to the paper, all qualitative figures (4, 5, 6) are made, and Table 3 can only be partly
 reproduced because the paper does not say exactly how it was scored.**
 
 ## 3. Installation
@@ -77,6 +81,7 @@ pip install -r requirements.txt        # numpy, numba, opencv-python, h5py, pyya
 python tests/test_io.py                # PASS test_roundtrip
 python tests/test_models.py            # PASS x4: motion models vs brute-force 3D projection
 python tests/test_chunks.py            # PASS: processing in chunks == one run
+python tests/test_sampling.py          # PASS x2: event sampling + reduced camera (Table 6)
 ```
 
 All commands below are run from inside `reimpl/` with the virtual environment active.
@@ -90,7 +95,9 @@ The datasets are not in the repo (`datasets/` is git-ignored). Put them next to 
 ETTCM-reimpl/
 ├── reimpl/                                  code
 └── datasets/
-    ├── VL/                                  Table 2   (~110 MB)
+    ├── ECD/slider_depth/                    Fig. 4    (8 MB zip)
+    │   ├── calib.txt  events.txt  ...
+    ├── VL/                                  Tables 2, 6   (~110 MB)
     │   ├── calib.txt
     │   ├── 2D-1/  events.es  divergence.txt  timestamps.txt
     │   ├── 2D-2/  ...
@@ -126,7 +133,15 @@ ETTCM-reimpl/
 The MVSEC scripts search `--data` recursively by file name, so the sub-folders under `MVSEC/` can
 be arranged differently; only the file names matter.
 
-### Ventral Landing (VL), for Table 2
+### Event Camera Dataset (ECD) `slider_depth`, for Fig. 4
+
+```bash
+mkdir -p datasets/ECD/slider_depth
+curl -L -o datasets/ECD/slider_depth.zip https://rpg.ifi.uzh.ch/datasets/davis/slider_depth.zip
+unzip datasets/ECD/slider_depth.zip -d datasets/ECD/slider_depth
+```
+
+### Ventral Landing (VL), for Tables 2 and 6
 
 - Download `VL.zip` (the copy the official code uses): https://figshare.com/ndownloader/files/44987794
 - `unzip VL.zip -d datasets/` should give `datasets/VL/calib.txt` and the 8 sequence folders.
@@ -166,6 +181,31 @@ python scripts/table2_vl.py --data ../datasets/VL --model translation -s 2
 
 Settings (official `table_2_results.sh`): s ∈ {2, 3}, w_thresh = 0.01, l_θ = 1000, l_ρ = 1,
 2 Gauss–Newton iterations. Models: `scaling`, `translation`, `six_dof`.
+`--jacobian consistent` swaps the official 6-DOF Jacobian for the model's true derivative
+(see Section 7); the default `official` is what reproduces the paper.
+
+### Table 6 and Fig. 8 (supplementary, VL): resolution reduction
+
+```bash
+# 3 models x s in {2, 3} x r in {1, 2, 3, 4}, 8 sequences, in parallel (~10 min)
+python scripts/table6_vl.py --data ../datasets/VL --csv ../results_python_vl_table6.csv \
+    --plot ../figures/fig8_resolution.png
+```
+
+Each event's coordinates are divided by r; one counter per reduced pixel and polarity fires
+every r² events, and the estimator runs at the reduced resolution with fx, fy, cx, cy divided
+by r: the official `leaky_sampling.hpp` + `Rectify(..., r, r)` (`table_6_results.sh`:
+`-w r -g r`). r = 1 is Table 2.
+
+### Fig. 1: runtime vs accuracy (VL)
+
+```bash
+python scripts/fig1_runtime.py --csv ../results_python_vl.csv --out ../figures/fig1_runtime.png
+```
+
+Our 6 (model, s) averages from `table2_vl.py`'s CSV on top of the paper's points. The other
+methods' points are read off the paper's figure (only ECMD's are given as numbers, Table 2);
+reading ECMD back gives 51 µs / 8.96 % vs the exact 50.90 / 8.92, so they are good to a few %.
 
 ### Tables 4 and 5 (MVSEC): optical flow
 
@@ -194,17 +234,27 @@ python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying3
 python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation
 ```
 
-### Figures 5 and 6 (qualitative maps)
+### Figures 4, 5 and 6 (qualitative maps)
 
 ```bash
+# Fig. 4: slider_depth (ECD), events / flow / depth
+python scripts/figures.py --dataset ecd --data ../datasets/ECD --seq slider_depth \
+    --model translation --t 2.7 --window 0.05 --out ../figures/fig4_slider_depth.png
+# Fig. 5: indoor_flying1, events / flow / TTC map (no GT panels)
 python scripts/figures.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation \
-    --t 20 --out ../figures/if1_t20.png
-python scripts/figures.py --dataset vl --data ../datasets/VL --seq 2D-1 --model translation \
-    -s 2 --l-theta 1000 --t 8 --out ../figures/vl_2d1.png
+    --t 16.2 --warmup 2 --no-gt --out ../figures/fig5_if1.png
+# Fig. 6: one row per sequence, with GT flow and GT TTC map
+python scripts/figures.py --data ../datasets/MVSEC --model translation \
+    --seq indoor_flying1,indoor_flying2,indoor_flying3,outdoor_day1 --t 16,11.25,51.5,8 \
+    --warmup 2 --out ../figures/fig6_translation.png
 ```
 
-Panels: accumulated events, GT flow, estimated flow, GT TTC map, estimated TTC map
-(TTC colours 1 s = red … 10 s = violet, as in the paper).
+Panels: accumulated events, GT flow, estimated flow, GT TTC map, estimated TTC map (Fig. 4:
+depth up to scale instead of TTC). Colours follow the paper's bars: TTC on a log scale from
+1 s (magenta) through red, yellow, green to 10 s (cyan); depth near (magenta) to far (cyan);
+grey = moving away. The paper does not give the times of its frames; the indoor times above are
+moments of strong forward motion (largest V_z in `odom.npz`): when the drone moves backwards or
+hovers, both the GT and the estimated TTC maps are grey.
 
 ### How MVSEC is evaluated
 
@@ -217,7 +267,14 @@ The paper gives few details, so the standard MVSEC protocol (EV-FlowNet [51]) is
 - **Time windows.** The whole `indoor_flying1–3` and `outdoor_day1` from 222.4 s to 240.4 s:
   69.9 + 84.5 + 93.7 + 18 = **266 s**, matching the paper's "approximately 265 sec".
   For `outdoor_day1` the estimator starts at the beginning of the recording (warm start) and only
-  the window is scored (`--cold` starts at 222.4 s instead).
+  the window is scored (`--cold` starts at 222.4 s instead, `--start` at any other point).
+- **Driving on `outdoor_day1` starts with ν_z = +1** (forward; `--init-nu-z` overrides). Driving
+  imposes |ν_z| = 1, so it keeps the sign it starts with. Started from 0 (the official code's
+  default), the first events pick that sign arbitrarily; with the car nearly still at the start
+  of the recording it came out backwards (Table 4 AEE 0.98, AAE 70°). With +1, starting at 0 s,
+  0.4 s or 100 s gives identical numbers, and even a cold start keeps the right sign. Indoors the
+  drone also flies backwards, so the indoor runs keep the official start of 0 (forcing +1 there
+  makes Table 3 worse: indoor_flying1 473 % vs 315 %).
 - **Flow (Tables 4, 5).** Intervals between consecutive grayscale frames; GT displacement over
   each interval with EV-FlowNet's `estimate_corresponding_gt_flow`; only pixels with non-zero GT;
   `outdoor_day1` rows < 190 only (the car's hood). Each event with an estimate gives
@@ -252,7 +309,7 @@ Detailed per-sequence numbers, including the official C++ run, are in [`RESULTS.
 | Translation | Paper | 0.63 / 0.41 | 0.94 / 2.83 | 0.79 / 1.65 | 0.55 / 0.97 |
 | | **Ours** | 0.66 / 0.87 | 1.19 / 6.48 | 0.94 / 3.69 | 0.67 / 1.59 |
 | 6-DOF | Paper | 0.88 / 1.97 | 1.60 / 12.02 | 1.38 / 9.99 | 0.81 / 2.26 |
-| | **Ours** | 0.84 / 1.79 | 1.60 / 10.77 | 1.38 / 8.66 | 0.76 / 1.91 |
+| | **Ours** | 0.84 / 1.79 | 1.60 / 10.77 | 1.38 / 8.66 | 0.76 / 1.83 |
 
 ### Table 5 (MVSEC), AREE (%) / AAE (°)
 
@@ -263,26 +320,26 @@ Detailed per-sequence numbers, including the official C++ run, are in [`RESULTS.
 | Translation | Paper | 44.46 / 11.38 | 72.67 / 21.77 |
 | | **Ours** | 50.90 / 12.12 | 92.73 / 21.95 |
 | 6-DOF | Paper | 95.23 / 21.35 | 122.04 / 31.68 |
-| | **Ours** | 84.35 / 21.41 | 120.29 / 22.52 |
+| | **Ours** | 84.35 / 21.41 | 120.17 / 22.42 |
 
 ### Table 3 (MVSEC), divergence AREE (%)
 
 | Model | | indoor_flying1 | indoor_flying2 | outdoor_day1 |
 |---|---|---:|---:|---:|
 | Driving | Paper | 153.30 | 84.80 | 47.27 |
-| | Ours, all events (plain mean) | 315.52 | 212.16 | 70.96 |
-| | Ours, median | 120.33 | 103.35 | 36.2 |
+| | Ours, all events (plain mean) | 315.52 | 212.16 | 71.08 |
+| | Ours, median | 120.33 | 103.35 | 36.05 |
 | Translation | Paper | 19.82 | 28.23 | 45.78 |
 | | Ours, all events (plain mean) | 66.77 | 81.88 | 54.31 |
-| | Ours, median | **23.82** | **28.69** | **44.0** |
+| | Ours, median | **23.82** | **28.69** | **43.98** |
 | | Ours, only \|μ_gt\| ≥ 0.2 /s | **18.24** | **29.44** | – |
 | 6-DOF | Paper | 53.65 | 56.12 | 56.66 |
-| | Ours, all events (plain mean) | 113.15 | 120.27 | 66.09 |
-| | Ours, median | 83.24 | 95.73 | 53.7 |
+| | Ours, all events (plain mean) | 113.15 | 120.27 | 66.83 |
+| | Ours, median | 83.24 | 95.73 | 53.74 |
 
-Numbers come from the runs before the code clean-up (identical code paths; the outdoor run then
-started 0.4 s after the recording start instead of at it, and medians were taken from a sample of
-events, so re-runs can differ in the last digit).
+All MVSEC numbers are from the final run of the current code (2026-11-23): `tables45_run.txt`,
+`table3_run.txt`, `table3_if3_run.txt`, `results_python_mvsec.csv`. Medians are taken from a
+sample of events, so a re-run can differ in the last digit of those rows.
 
 ## 7. Table 3: the open problem
 
@@ -339,12 +396,37 @@ indoor_flying3 under the different protocols (`table3_mvsec.py --seq indoor_flyi
    indoor_flying1, 0.07 on indoor_flying2). Since no scoring rule fixes 6-DOF, the cause is in
    the estimate, and this Jacobian is the main suspect. The MVSEC numbers in the paper may have
    been produced with a different version.
+   **Tested** (`--jacobian consistent`: the true derivative, dr/dm = −Δt·B_param,
+   dr/dλ = Δt·ρ·m₂·(p_x, p_y)). The supplementary's Eq. 18 writes the Jacobian as
+   −Δt·(B, ρ·V·ν), i.e. *with* −Δt on the log-depth column, so the paper's own derivation agrees
+   with the consistent version, not with the C++. Results:
+   - VL (Table 2): s = 2 improves to 5.72 % (paper 10.11), s = 3 gets worse, 13.80 % (paper 6.42).
+     So the paper's Table 2 was certainly made with the official Jacobian.
+   - MVSEC: better on indoor_flying1 (Table 4 AEE 0.75 vs 0.84, paper 0.88; Table 3 59.4 median,
+     49.7 with |μ_gt| ≥ 0.2, paper 53.65) and indoor_flying3 (1.08 vs 1.38, paper 1.38), but it
+     **diverges** on indoor_flying2 (11.4 px) and outdoor_day1 (256.5 px).
+   Neither Jacobian reproduces the paper's 6-DOF MVSEC numbers; the official one stays the default.
 3. **How `outdoor_day1` was run** (start point, settings): our outdoor Driving is weaker on all
-   three tables (Table 4: 0.59 vs 0.39; Table 5: 87 vs 50; Table 3: 71 vs 47).
+   three tables (Table 4: 0.59 vs 0.39; Table 5: 87 vs 50; Table 3: 71 vs 47). Starting point no
+   longer matters (see "How MVSEC is evaluated"), so the remaining gap is something else.
+
+### Translation: parameter sweep (Table 4)
+
+Translation is 0.03–0.25 px worse than the paper on Table 4. On indoor_flying2 (the largest gap:
+1.19 vs 0.94 px/frame, Out 6.5 vs 2.8 %), s ∈ {2, 3, 4} × l_θ ∈ {30, 100, 300, 1000, 3000}:
+
+| s \ l_θ | 30 | 100 | 300 | 1000 | 3000 |
+|---|---:|---:|---:|---:|---:|
+| 2 | 11.63 | 9.71 | 7.01 | | |
+| 3 | 1.27 | **1.19** (paper's) | 1.07 | 1.05 | 1.05 |
+| 4 | 1.17 | 1.11 | 1.07 | 1.06 | 1.06 |
+
+A stronger motion prior helps a little and levels off at ~1.05 px (Out ~4.9 %); nothing reaches
+the paper's 0.94, so the paper's settings (s = 3, l_θ = 100) are kept.
 
 ### Questions sent to the authors
 
-1. Which 6-DOF Jacobian produced Tables 3–5?
+1. Which 6-DOF Jacobian produced Tables 3–5? (The supplementary's Eq. 18 has −Δt on the log-depth column; the released C++ does not, and Table 2 only matches the C++ version.)
 2. How were pixels/events with near-zero GT handled in the relative errors (Tables 3 and 5)?
 3. Table 3's text mentions indoor_flying3 but the table shows indoor_flying2: which one?
 4. How was `outdoor_day1` run (from the recording start or from 222.4 s, same settings)?
@@ -367,21 +449,23 @@ indoor_flying3 under the different protocols (`table3_mvsec.py --seq indoor_flyi
 | 463 s evaluated instead of the paper's ~265 s | Used another paper's ("Secrets") frame ranges | Switched to EV-FlowNet's windows: 266 s |
 | Table 3 error was ~2× too large | GT velocity recovered from the GT flow, which implies only 55–65 % of the real forward speed | Use MVSEC's own camera velocity (`odom.npz`) |
 | Outdoor Driving had the wrong sign | Estimator started cold at 222.4 s while the car was already moving | Warm start from the recording start (now the default) |
+| After the code clean-up outdoor Driving was backwards again (AEE 0.98, AAE 70°) | Driving keeps the sign of ν_z it starts with, and starting from 0 the first events (car nearly still) pick it arbitrarily; the result depended on the exact start event | Driving starts at ν_z = +1 on `outdoor_day1`; identical results from any start point |
+| Indoor TTC maps in the figures were all grey | The chosen times had the drone flying backwards / hovering (GT grey too) | Figures at moments of strong forward motion |
+| Figure colours did not match the paper | Used a red–violet scale | The paper's bar: magenta (1 s) → red → yellow → green → cyan (10 s) |
 
 ## 9. What is left to do
 
-| Item | What it involves | Size |
-|---|---|---|
-| Re-run everything with the cleaned code | The four commands in Section 5 | ~1–2 h of laptop time, unattended |
-| Table 3 / Table 5 scoring | Waiting on the authors' answers; then implement their rule in `table3_mvsec.py` / `tables45_mvsec.py` | 1–2 h once we know the rule |
-| 6-DOF on MVSEC | Add a switch for a corrected (self-consistent) 6-DOF Jacobian, re-run Tables 3–5 for 6-DOF, check Table 2 is unaffected or still close | About half a day |
-| Outdoor Driving gap | Try start points and settings for `outdoor_day1` (or use the authors' answer) | A few hours |
-| Translation slightly worse on Table 4 (0.03–0.25 px) | Small sweep of s, l_θ around the paper's values | A few hours |
-| Figures 5 and 6 | Run `figures.py` at the paper's times and compare by eye | 1–2 h |
-| Figure 1 (runtime vs accuracy) | Already have µs/event and REE; plot against the paper's other methods | 1 h |
+Everything in the paper and its supplementary has been run. Only the authors can close what is
+left:
 
-Without the authors' input, the reproduction is essentially complete: what remains is either
-waiting for them or optional checks.
+| Item | What it involves |
+|---|---|
+| Table 3 / Table 5 scoring | Their rule for near-zero ground truth in the relative errors; then implement it in `table3_mvsec.py` / `tables45_mvsec.py` (1–2 h) |
+| 6-DOF on MVSEC | Which Jacobian / code version produced Tables 3–5 (both tested, neither matches) |
+| Outdoor Driving gap (0.59 vs 0.39) | How `outdoor_day1` was run; start point is ruled out |
+
+If they do not answer, these stay as "not reproducible from the paper as written", with the
+evidence in Section 7.
 
 ## 10. Code layout
 
@@ -394,19 +478,24 @@ reimpl/
     decay.py        adaptive global decay: activity a(t) of Eq. 11 + global-divergence decay
     linalg.py       small Cholesky solve (like Eigen's LLT)
     io_es.py        .es event files (VL): reader and writer
-    calib.py        VL calib.txt + rectification map (like the official rectify.hpp)
+    calib.py        VL calib.txt + rectification map (like the official rectify.hpp),
+                    optionally at a reduced resolution (Table 6)
+    sampling.py     leaky-firing event sampling (supplementary Table 6, like leaky_sampling.hpp)
     evaluate.py     REE (Eq. 12) exactly as the official benchmark computes it, VL loader
     mvsec.py        MVSEC: calibration, event streaming, GT flow, EV-FlowNet GT propagation,
-                    flow metrics, GT divergence
+                    flow metrics, GT divergence, estimator start-up (initial_state)
     _jit.py         Numba JIT (falls back to plain Python; ETTCM_NO_JIT=1 forces plain Python)
   scripts/
     check_data.py      checks that the VL and MVSEC files are in place and readable
     table2_vl.py       Table 2 (VL)
+    table6_vl.py       supplementary Table 6 + Fig. 8 (VL, resolution reduction r)
+    fig1_runtime.py    Fig. 1 (runtime vs accuracy, VL)
     table3_mvsec.py    Table 3 (MVSEC divergence; all scoring protocols + data checks)
     tables45_mvsec.py  Tables 4 and 5 (MVSEC optical flow)
-    figures.py         Figs. 5/6: events, flow and TTC maps (MVSEC or VL)
-  tests/            test_io.py, test_models.py, test_chunks.py
+    figures.py         Figs. 4/5/6: events, flow, TTC or depth maps (MVSEC, ECD or VL)
+  tests/            test_io.py, test_models.py, test_chunks.py, test_sampling.py
   requirements.txt
+figures/            fig1_runtime, fig4_slider_depth, fig5_if1, fig6_translation, fig8_resolution (.png)
 RESULTS.md          detailed results (per sequence, official C++ comparison)
 sources/links.txt   paper, code, datasets and background links
 ```

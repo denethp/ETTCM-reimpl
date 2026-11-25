@@ -123,6 +123,28 @@ def rectify(x, y, cam):
     return keep, xr, yr
 
 
+def initial_state(cam, model, seq, init_nu_z=None):
+    """Fresh estimator state for an MVSEC run.
+
+    init_nu_z: starting value of nu_z (paper sign, + = moving forward). None = +1 for the
+    Driving model on outdoor_day1 (the car), 0 (the official code's start) otherwise.
+    Driving imposes |nu_z| = 1, so it keeps the sign it starts with: started from 0, the
+    first Gauss-Newton steps pick it arbitrarily, and on outdoor_day1 (car nearly still at
+    the start) that gave the wrong sign (AAE 70 deg). A car only moves forward, so there it
+    starts at +1 (then every start point gives the same result). The indoor drone also flies
+    backwards; a forced +1 there makes Table 3 worse (indoor_flying1 473 % vs 315 %), so the
+    indoor runs keep the official start. Not used for 6-DOF.
+    """
+    from .estimator import EttcmState
+    from .models import DRIVING, SIX_DOF, n_v
+    st = EttcmState(cam.width, cam.height)
+    if init_nu_z is None:
+        init_nu_z = 1.0 if (model == DRIVING and seq.startswith("outdoor")) else 0.0
+    if init_nu_z and model != SIX_DOF:
+        st.motion[n_v(model) - 1] = init_nu_z
+    return st
+
+
 # ------------------------------------------------------------------------- events
 class EventFile:
     """Streams davis/left/events from <seq>_data.hdf5 without loading it all."""

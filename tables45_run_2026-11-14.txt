@@ -1,0 +1,72 @@
+== indoor_flying2  model=driving  s=3  l_theta=100.0
+  indoor_flying2 driving:   8.0 %  indoor_flying2 driving:  16.0 %  indoor_flying2 driving:  24.0 %  indoor_flying2 driving:  31.9 %  indoor_flying2 driving:  39.9 %  indoor_flying2 driving:  47.9 %  indoor_flying2 driving:  55.9 %  indoor_flying2 driving:  63.9 %  indoor_flying2 driving:  71.9 %  indoor_flying2 driving:  79.9 %  indoor_flying2 driving:  87.9 %  indoor_flying2 driving:  95.8 %  indoor_flying2 driving: 100.0 %
+  evaluated 84.5 s, 21378268 events, 100.0 % with an estimate, 2.82 us/event, 2652 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           2.47    27.36   425.55    57.98
+  paper          2.42    26.32        -        -
+== indoor_flying2  model=translation  s=3  l_theta=100.0
+  indoor_flying2 translation:   8.0 %  indoor_flying2 translation:  16.0 %  indoor_flying2 translation:  24.0 %  indoor_flying2 translation:  31.9 %  indoor_flying2 translation:  39.9 %  indoor_flying2 translation:  47.9 %  indoor_flying2 translation:  55.9 %  indoor_flying2 translation:  63.9 %  indoor_flying2 translation:  71.9 %  indoor_flying2 translation:  79.9 %  indoor_flying2 translation:  87.9 %  indoor_flying2 translation:  95.8 %  indoor_flying2 translation: 100.0 %
+  evaluated 84.5 s, 21378268 events, 100.0 % with an estimate, 3.14 us/event, 2652 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.19     6.48    62.83    15.22
+  paper          0.94     2.83        -        -
+== indoor_flying2  model=six_dof  s=3  l_theta=100.0
+  indoor_flying2 six_dof:   8.0 %  indoor_flying2 six_dof:  16.0 %  indoor_flying2 six_dof:  24.0 %  indoor_flying2 six_dof:  31.9 %  indoor_flying2 six_dof:  39.9 %  indoor_flying2 six_dof:  47.9 %  indoor_flying2 six_dof:  55.9 %  indoor_flying2 six_dof:  63.9 %  indoor_flying2 six_dof:  71.9 %  indoor_flying2 six_dof:  79.9 %  indoor_flying2 six_dof:  87.9 %  indoor_flying2 six_dof:  95.8 %  indoor_flying2 six_dof: 100.0 %
+  evaluated 84.5 s, 21378268 events, 100.0 % with an estimate, 4.62 us/event, 2652 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.60    10.77    96.35    20.92
+  paper          1.60    12.02        -        -
+== indoor_flying3  model=driving  s=3  l_theta=100.0
+  indoor_flying3 driving:   8.3 %  indoor_flying3 driving:  16.7 %  indoor_flying3 driving:  25.0 %  indoor_flying3 driving:  33.3 %  indoor_flying3 driving:  41.7 %  indoor_flying3 driving:  50.0 %  indoor_flying3 driving:  58.3 %  indoor_flying3 driving:  66.7 %  indoor_flying3 driving:  75.0 %  indoor_flying3 driving:  83.3 %  indoor_flying3 driving:  91.7 %  indoor_flying3 driving: 100.0 %  indoor_flying3 driving: 100.0 %
+  evaluated 93.6 s, 20605852 events, 100.0 % with an estimate, 2.72 us/event, 2939 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           2.16    26.78   362.85    60.75
+  paper          2.14    26.05   104.05    60.36
+== indoor_flying3  model=translation  s=3  l_theta=100.0
+  indoor_flying3 translation:   8.3 %  indoor_flying3 translation:  16.7 %  indoor_flying3 translation:  25.0 %  indoor_flying3 translation:  33.3 %  indoor_flying3 translation:  41.7 %  indoor_flying3 translation:  50.0 %  indoor_flying3 translation:  58.3 %  indoor_flying3 translation:  66.7 %  indoor_flying3 translation:  75.0 %  indoor_flying3 translation:  83.3 %  indoor_flying3 translation:  91.7 %  indoor_flying3 translation: 100.0 %  indoor_flying3 translation: 100.0 %
+  evaluated 93.6 s, 20605852 events, 100.0 % with an estimate, 3.29 us/event, 2939 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.94     3.69    50.90    12.12
+  paper          0.79     1.65    44.46    11.38
+== indoor_flying3  model=six_dof  s=3  l_theta=100.0
+  indoor_flying3 six_dof:   8.3 %  indoor_flying3 six_dof:  16.7 %  indoor_flying3 six_dof:  25.0 %  indoor_flying3 six_dof:  33.3 %  indoor_flying3 six_dof:  41.7 %  indoor_flying3 six_dof:  50.0 %  indoor_flying3 six_dof:  58.3 %  indoor_flying3 six_dof:  66.7 %  indoor_flying3 six_dof:  75.0 %  indoor_flying3 six_dof:  83.3 %  indoor_flying3 six_dof:  91.7 %  indoor_flying3 six_dof: 100.0 %  indoor_flying3 six_dof: 100.0 %
+  evaluated 93.6 s, 20605852 events, 100.0 % with an estimate, 4.50 us/event, 2939 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.38     8.66    84.35    21.41
+  paper          1.38     9.99    95.23    21.35
+== indoor_flying1  model=driving  s=3  l_theta=100.0
+  indoor_flying1 driving:  14.2 %  indoor_flying1 driving:  28.4 %  indoor_flying1 driving:  42.6 %  indoor_flying1 driving:  56.9 %  indoor_flying1 driving:  71.1 %  indoor_flying1 driving:  85.3 %  indoor_flying1 driving:  99.5 %  indoor_flying1 driving: 100.0 %
+  evaluated 69.9 s, 11989493 events, 100.0 % with an estimate, 3.11 us/event, 2193 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           1.35     6.93   243.43    48.15
+  paper          1.40     7.50        -        -
+== indoor_flying1  model=translation  s=3  l_theta=100.0
+  indoor_flying1 translation:  14.2 %  indoor_flying1 translation:  28.4 %  indoor_flying1 translation:  42.6 %  indoor_flying1 translation:  56.9 %  indoor_flying1 translation:  71.1 %  indoor_flying1 translation:  85.3 %  indoor_flying1 translation:  99.5 %  indoor_flying1 translation: 100.0 %
+  evaluated 69.9 s, 11989493 events, 100.0 % with an estimate, 3.20 us/event, 2193 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.66     0.87    57.03    13.66
+  paper          0.63     0.41        -        -
+== indoor_flying1  model=six_dof  s=3  l_theta=100.0
+  indoor_flying1 six_dof:  14.2 %  indoor_flying1 six_dof:  28.4 %  indoor_flying1 six_dof:  42.6 %  indoor_flying1 six_dof:  56.9 %  indoor_flying1 six_dof:  71.1 %  indoor_flying1 six_dof:  85.3 %  indoor_flying1 six_dof:  99.5 %  indoor_flying1 six_dof: 100.0 %
+  evaluated 69.9 s, 11989493 events, 100.0 % with an estimate, 4.66 us/event, 2193 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.84     1.79    76.66    19.97
+  paper          0.88     1.97        -        -
+== outdoor_day1  model=driving  s=3  l_theta=100.0
+  outdoor_day1 driving:   2.0 %  outdoor_day1 driving:   4.0 %  outdoor_day1 driving:   6.0 %  outdoor_day1 driving:   8.0 %  outdoor_day1 driving:  10.0 %  outdoor_day1 driving:  12.0 %  outdoor_day1 driving:  14.0 %  outdoor_day1 driving:  16.0 %  outdoor_day1 driving:  18.0 %  outdoor_day1 driving:  20.0 %  outdoor_day1 driving:  22.0 %  outdoor_day1 driving:  24.0 %  outdoor_day1 driving:  26.0 %  outdoor_day1 driving:  28.0 %  outdoor_day1 driving:  30.0 %  outdoor_day1 driving:  32.0 %  outdoor_day1 driving:  33.9 %  outdoor_day1 driving:  35.9 %  outdoor_day1 driving:  37.9 %  outdoor_day1 driving:  39.9 %  outdoor_day1 driving:  41.9 %  outdoor_day1 driving:  43.9 %  outdoor_day1 driving:  45.9 %  outdoor_day1 driving:  47.9 %  outdoor_day1 driving:  49.9 %  outdoor_day1 driving:  51.9 %  outdoor_day1 driving:  53.9 %  outdoor_day1 driving:  55.9 %  outdoor_day1 driving:  57.9 %  outdoor_day1 driving:  59.9 %  outdoor_day1 driving:  61.9 %  outdoor_day1 driving:  63.9 %  outdoor_day1 driving:  65.9 %  outdoor_day1 driving:  67.9 %  outdoor_day1 driving:  69.9 %  outdoor_day1 driving:  71.9 %  outdoor_day1 driving:  73.9 %  outdoor_day1 driving:  75.9 %  outdoor_day1 driving:  77.9 %  outdoor_day1 driving:  79.9 %  outdoor_day1 driving:  81.9 %  outdoor_day1 driving:  83.9 %  outdoor_day1 driving:  85.9 %  outdoor_day1 driving:  87.9 %  outdoor_day1 driving:  89.9 %  outdoor_day1 driving:  91.9 %  outdoor_day1 driving:  93.9 %  outdoor_day1 driving:  95.9 %  outdoor_day1 driving:  97.9 %  outdoor_day1 driving:  99.8 %  outdoor_day1 driving: 100.0 %
+  evaluated 18.0 s, 5536076 events, 99.9 % with an estimate, 2.89 us/event, 818 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.98     4.48   110.88    70.03
+  paper          0.39     0.12    50.25    13.31
+== outdoor_day1  model=translation  s=3  l_theta=100.0
+  outdoor_day1 translation:   2.0 %  outdoor_day1 translation:   4.0 %  outdoor_day1 translation:   6.0 %  outdoor_day1 translation:   8.0 %  outdoor_day1 translation:  10.0 %  outdoor_day1 translation:  12.0 %  outdoor_day1 translation:  14.0 %  outdoor_day1 translation:  16.0 %  outdoor_day1 translation:  18.0 %  outdoor_day1 translation:  20.0 %  outdoor_day1 translation:  22.0 %  outdoor_day1 translation:  24.0 %  outdoor_day1 translation:  26.0 %  outdoor_day1 translation:  28.0 %  outdoor_day1 translation:  30.0 %  outdoor_day1 translation:  32.0 %  outdoor_day1 translation:  33.9 %  outdoor_day1 translation:  35.9 %  outdoor_day1 translation:  37.9 %  outdoor_day1 translation:  39.9 %  outdoor_day1 translation:  41.9 %  outdoor_day1 translation:  43.9 %  outdoor_day1 translation:  45.9 %  outdoor_day1 translation:  47.9 %  outdoor_day1 translation:  49.9 %  outdoor_day1 translation:  51.9 %  outdoor_day1 translation:  53.9 %  outdoor_day1 translation:  55.9 %  outdoor_day1 translation:  57.9 %  outdoor_day1 translation:  59.9 %  outdoor_day1 translation:  61.9 %  outdoor_day1 translation:  63.9 %  outdoor_day1 translation:  65.9 %  outdoor_day1 translation:  67.9 %  outdoor_day1 translation:  69.9 %  outdoor_day1 translation:  71.9 %  outdoor_day1 translation:  73.9 %  outdoor_day1 translation:  75.9 %  outdoor_day1 translation:  77.9 %  outdoor_day1 translation:  79.9 %  outdoor_day1 translation:  81.9 %  outdoor_day1 translation:  83.9 %  outdoor_day1 translation:  85.9 %  outdoor_day1 translation:  87.9 %  outdoor_day1 translation:  89.9 %  outdoor_day1 translation:  91.9 %  outdoor_day1 translation:  93.9 %  outdoor_day1 translation:  95.9 %  outdoor_day1 translation:  97.9 %  outdoor_day1 translation:  99.8 %  outdoor_day1 translation: 100.0 %
+  evaluated 18.0 s, 5536076 events, 100.0 % with an estimate, 3.38 us/event, 818 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.67     1.59    92.73    21.95
+  paper          0.55     0.97    72.67    21.77
+== outdoor_day1  model=six_dof  s=3  l_theta=100.0
+  outdoor_day1 six_dof:   2.0 %  outdoor_day1 six_dof:   4.0 %  outdoor_day1 six_dof:   6.0 %  outdoor_day1 six_dof:   8.0 %  outdoor_day1 six_dof:  10.0 %  outdoor_day1 six_dof:  12.0 %  outdoor_day1 six_dof:  14.0 %  outdoor_day1 six_dof:  16.0 %  outdoor_day1 six_dof:  18.0 %  outdoor_day1 six_dof:  20.0 %  outdoor_day1 six_dof:  22.0 %  outdoor_day1 six_dof:  24.0 %  outdoor_day1 six_dof:  26.0 %  outdoor_day1 six_dof:  28.0 %  outdoor_day1 six_dof:  30.0 %  outdoor_day1 six_dof:  32.0 %  outdoor_day1 six_dof:  33.9 %  outdoor_day1 six_dof:  35.9 %  outdoor_day1 six_dof:  37.9 %  outdoor_day1 six_dof:  39.9 %  outdoor_day1 six_dof:  41.9 %  outdoor_day1 six_dof:  43.9 %  outdoor_day1 six_dof:  45.9 %  outdoor_day1 six_dof:  47.9 %  outdoor_day1 six_dof:  49.9 %  outdoor_day1 six_dof:  51.9 %  outdoor_day1 six_dof:  53.9 %  outdoor_day1 six_dof:  55.9 %  outdoor_day1 six_dof:  57.9 %  outdoor_day1 six_dof:  59.9 %  outdoor_day1 six_dof:  61.9 %  outdoor_day1 six_dof:  63.9 %  outdoor_day1 six_dof:  65.9 %  outdoor_day1 six_dof:  67.9 %  outdoor_day1 six_dof:  69.9 %  outdoor_day1 six_dof:  71.9 %  outdoor_day1 six_dof:  73.9 %  outdoor_day1 six_dof:  75.9 %  outdoor_day1 six_dof:  77.9 %  outdoor_day1 six_dof:  79.9 %  outdoor_day1 six_dof:  81.9 %  outdoor_day1 six_dof:  83.9 %  outdoor_day1 six_dof:  85.9 %  outdoor_day1 six_dof:  87.9 %  outdoor_day1 six_dof:  89.9 %  outdoor_day1 six_dof:  91.9 %  outdoor_day1 six_dof:  93.9 %  outdoor_day1 six_dof:  95.9 %  outdoor_day1 six_dof:  97.9 %  outdoor_day1 six_dof:  99.8 %  outdoor_day1 six_dof: 100.0 %
+  evaluated 18.0 s, 5536076 events, 100.0 % with an estimate, 5.22 us/event, 818 intervals
+                  AEE     Out%    AREE%      AAE
+  ours           0.76     1.83   120.17    22.42
+  paper          0.81     2.26   122.04    31.68
