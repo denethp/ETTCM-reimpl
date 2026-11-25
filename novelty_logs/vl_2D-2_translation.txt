@@ -1,0 +1,22 @@
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/vl_2D-2_translation_s2.npz)
+
+== 2D-2 / translation: 3,185,968 scored events (u finite for 84.5 %)
+   rank correlation of u with |log TTC error|: +0.106   with 1/|mu_gt| (near-zero GT): +0.070   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    12.99   11.42 100.0%  0.144   0.119   78.7%  99.9%
+   confidence: most confident 75 %               21.1%    11.27    9.70 100.0%  0.122   0.100   85.4% 100.0%
+   confidence: most confident 50 %               42.3%    11.78   10.21 100.0%  0.128   0.105   83.4% 100.0%
+   confidence: most confident 25 %               63.4%    12.28   10.67 100.0%  0.134   0.111   81.4% 100.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   -- danger zone: GT TTC in (0, 5] s (0.0 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                         0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 75 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 50 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 25 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   translation / 2D-2             nan     12.99      11.78           nan    0.144     0.128       78.7%        83.4%

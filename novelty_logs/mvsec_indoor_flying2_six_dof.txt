@@ -1,0 +1,23 @@
+    indoor_flying2 six_dof:   2.0 %    indoor_flying2 six_dof:   4.0 %    indoor_flying2 six_dof:   6.0 %    indoor_flying2 six_dof:   8.0 %    indoor_flying2 six_dof:  10.0 %    indoor_flying2 six_dof:  12.0 %    indoor_flying2 six_dof:  14.0 %    indoor_flying2 six_dof:  16.0 %    indoor_flying2 six_dof:  18.0 %    indoor_flying2 six_dof:  20.0 %    indoor_flying2 six_dof:  22.0 %    indoor_flying2 six_dof:  24.0 %    indoor_flying2 six_dof:  26.0 %    indoor_flying2 six_dof:  28.0 %    indoor_flying2 six_dof:  30.0 %    indoor_flying2 six_dof:  31.9 %    indoor_flying2 six_dof:  33.9 %    indoor_flying2 six_dof:  35.9 %    indoor_flying2 six_dof:  37.9 %    indoor_flying2 six_dof:  39.9 %    indoor_flying2 six_dof:  41.9 %    indoor_flying2 six_dof:  43.9 %    indoor_flying2 six_dof:  45.9 %    indoor_flying2 six_dof:  47.9 %    indoor_flying2 six_dof:  49.9 %    indoor_flying2 six_dof:  51.9 %    indoor_flying2 six_dof:  53.9 %    indoor_flying2 six_dof:  55.9 %    indoor_flying2 six_dof:  57.9 %    indoor_flying2 six_dof:  59.9 %    indoor_flying2 six_dof:  61.9 %    indoor_flying2 six_dof:  63.9 %    indoor_flying2 six_dof:  65.9 %    indoor_flying2 six_dof:  67.9 %    indoor_flying2 six_dof:  69.9 %    indoor_flying2 six_dof:  71.9 %    indoor_flying2 six_dof:  73.9 %    indoor_flying2 six_dof:  75.9 %    indoor_flying2 six_dof:  77.9 %    indoor_flying2 six_dof:  79.9 %    indoor_flying2 six_dof:  81.9 %    indoor_flying2 six_dof:  83.9 %    indoor_flying2 six_dof:  85.9 %    indoor_flying2 six_dof:  87.9 %    indoor_flying2 six_dof:  89.9 %    indoor_flying2 six_dof:  91.8 %    indoor_flying2 six_dof:  93.8 %    indoor_flying2 six_dof:  95.8 %    indoor_flying2 six_dof:  97.8 %    indoor_flying2 six_dof:  99.8 %    indoor_flying2 six_dof: 100.0 %  (319 s)
+
+== indoor_flying2 / six_dof: 17,971,063 scored events (u finite for 99.6 %)
+   paper's Table 3 AREE: 56.12 %
+   rank correlation of u with |log TTC error|: +0.762   with 1/|mu_gt| (near-zero GT): +0.186   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   120.27   95.73  90.4%  2.869   2.352    7.5%  21.8%
+   confidence: most confident 75 %               24.9%   125.15   45.43  93.4%  0.713   0.480   21.6%  61.0%
+   confidence: most confident 50 %               49.8%   125.56   78.01  91.7%  1.353   0.894   13.6%  39.2%
+   confidence: most confident 25 %               74.7%   123.80   90.39  92.3%  2.043   1.604    9.8%  28.5%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       60.8%    87.15   96.45  91.4%  3.263   2.898    7.8%  22.0%
+   -- danger zone: GT TTC in (0, 5] s (31.4 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    77.33   97.36  94.6%  3.527   3.048   11.5%  32.5%
+   confidence: most confident 75 %               35.5%    42.60   32.82  97.6%  0.430   0.359   29.3%  83.4%
+   confidence: most confident 50 %               47.3%    54.67   39.52  94.7%  0.862   0.430   23.7%  66.7%
+   confidence: most confident 25 %               68.4%    67.22   69.29  95.1%  1.943   0.701   16.8%  47.3%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    77.33   97.36  94.6%  3.527   3.048   11.5%  32.5%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   six_dof / if2                56.12    120.27     125.56         87.15    2.869     1.353        7.5%        13.6%

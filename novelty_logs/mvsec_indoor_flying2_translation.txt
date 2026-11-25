@@ -1,0 +1,23 @@
+    indoor_flying2 translation:   2.0 %    indoor_flying2 translation:   4.0 %    indoor_flying2 translation:   6.0 %    indoor_flying2 translation:   8.0 %    indoor_flying2 translation:  10.0 %    indoor_flying2 translation:  12.0 %    indoor_flying2 translation:  14.0 %    indoor_flying2 translation:  16.0 %    indoor_flying2 translation:  18.0 %    indoor_flying2 translation:  20.0 %    indoor_flying2 translation:  22.0 %    indoor_flying2 translation:  24.0 %    indoor_flying2 translation:  26.0 %    indoor_flying2 translation:  28.0 %    indoor_flying2 translation:  30.0 %    indoor_flying2 translation:  31.9 %    indoor_flying2 translation:  33.9 %    indoor_flying2 translation:  35.9 %    indoor_flying2 translation:  37.9 %    indoor_flying2 translation:  39.9 %    indoor_flying2 translation:  41.9 %    indoor_flying2 translation:  43.9 %    indoor_flying2 translation:  45.9 %    indoor_flying2 translation:  47.9 %    indoor_flying2 translation:  49.9 %    indoor_flying2 translation:  51.9 %    indoor_flying2 translation:  53.9 %    indoor_flying2 translation:  55.9 %    indoor_flying2 translation:  57.9 %    indoor_flying2 translation:  59.9 %    indoor_flying2 translation:  61.9 %    indoor_flying2 translation:  63.9 %    indoor_flying2 translation:  65.9 %    indoor_flying2 translation:  67.9 %    indoor_flying2 translation:  69.9 %    indoor_flying2 translation:  71.9 %    indoor_flying2 translation:  73.9 %    indoor_flying2 translation:  75.9 %    indoor_flying2 translation:  77.9 %    indoor_flying2 translation:  79.9 %    indoor_flying2 translation:  81.9 %    indoor_flying2 translation:  83.9 %    indoor_flying2 translation:  85.9 %    indoor_flying2 translation:  87.9 %    indoor_flying2 translation:  89.9 %    indoor_flying2 translation:  91.8 %    indoor_flying2 translation:  93.8 %    indoor_flying2 translation:  95.8 %    indoor_flying2 translation:  97.8 %    indoor_flying2 translation:  99.8 %    indoor_flying2 translation: 100.0 %  (240 s)
+
+== indoor_flying2 / translation: 17,971,063 scored events (u finite for 99.6 %)
+   paper's Table 3 AREE: 28.23 %
+   rank correlation of u with |log TTC error|: +0.367   with 1/|mu_gt| (near-zero GT): +0.471   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    81.88   28.66  97.6%  0.417   0.269   42.5%  80.4%
+   confidence: most confident 75 %               24.9%    38.35   15.97  99.8%  0.229   0.158   64.4%  94.8%
+   confidence: most confident 50 %               49.8%    49.25   19.60  99.8%  0.286   0.192   55.8%  91.3%
+   confidence: most confident 25 %               74.7%    65.20   23.84  99.6%  0.344   0.231   48.5%  87.1%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       60.8%    29.44   19.03  99.7%  0.258   0.188   56.7%  94.4%
+   -- danger zone: GT TTC in (0, 5] s (31.4 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    22.45   15.70  99.5%  0.229   0.159   63.6%  94.9%
+   confidence: most confident 75 %               39.8%    17.24   13.12 100.0%  0.167   0.134   72.2%  99.6%
+   confidence: most confident 50 %               68.7%    17.76   13.60 100.0%  0.173   0.138   71.0%  99.3%
+   confidence: most confident 25 %               87.1%    18.96   14.37  99.9%  0.186   0.147   68.3%  98.7%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    22.45   15.70  99.5%  0.229   0.159   63.6%  94.9%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   translation / if2            28.23     81.88      49.25         29.44    0.417     0.286       42.5%        55.8%

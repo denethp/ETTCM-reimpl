@@ -1,0 +1,22 @@
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/vl_2D-2_six_dof_s2.npz)
+
+== 2D-2 / six_dof: 3,185,951 scored events (u finite for 84.5 %)
+   rank correlation of u with |log TTC error|: +0.046   with 1/|mu_gt| (near-zero GT): +0.408   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    28.21   26.21 100.0%  0.340   0.297   38.0%  90.8%
+   confidence: most confident 75 %               21.1%    27.93   25.97 100.0%  0.334   0.293   38.6%  91.5%
+   confidence: most confident 50 %               42.2%    27.97   26.07 100.0%  0.336   0.294   38.2%  91.4%
+   confidence: most confident 25 %               63.4%    28.28   26.46 100.0%  0.341   0.300   37.4%  91.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   -- danger zone: GT TTC in (0, 5] s (0.0 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                         0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 75 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 50 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 25 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   six_dof / 2D-2                 nan     28.21      27.97           nan    0.340     0.336       38.0%        38.2%

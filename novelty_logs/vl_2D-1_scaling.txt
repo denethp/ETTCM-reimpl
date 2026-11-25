@@ -1,0 +1,22 @@
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/vl_2D-1_scaling_s2.npz)
+
+== 2D-1 / scaling: 3,053,663 scored events (u finite for 85.8 %)
+   rank correlation of u with |log TTC error|: -0.017   with 1/|mu_gt| (near-zero GT): +0.064   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    10.82    8.96 100.0%  0.111   0.089   88.9% 100.0%
+   confidence: most confident 75 %               21.5%    11.13    9.30 100.0%  0.110   0.092   89.6% 100.0%
+   confidence: most confident 50 %               42.9%    11.15    9.34 100.0%  0.112   0.093   89.1% 100.0%
+   confidence: most confident 25 %               64.4%    11.11    9.29 100.0%  0.112   0.093   88.8% 100.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   -- danger zone: GT TTC in (0, 5] s (0.0 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                         0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 75 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 50 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 25 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   scaling / 2D-1                 nan     10.82      11.15           nan    0.111     0.112       88.9%        89.1%

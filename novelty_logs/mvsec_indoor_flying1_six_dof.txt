@@ -1,0 +1,25 @@
+/home/lasan-perera/ettcm-project/ETTCM-reimpl/reimpl/scripts/novelty_mvsec.py:110: RuntimeWarning: invalid value encountered in multiply
+  u = out["sigma"][sl] * np.sqrt(out["res2"][sl])
+    indoor_flying1 six_dof:   3.6 %    indoor_flying1 six_dof:   7.1 %    indoor_flying1 six_dof:  10.7 %    indoor_flying1 six_dof:  14.2 %    indoor_flying1 six_dof:  17.8 %    indoor_flying1 six_dof:  21.3 %    indoor_flying1 six_dof:  24.9 %    indoor_flying1 six_dof:  28.4 %    indoor_flying1 six_dof:  32.0 %    indoor_flying1 six_dof:  35.5 %    indoor_flying1 six_dof:  39.1 %    indoor_flying1 six_dof:  42.6 %    indoor_flying1 six_dof:  46.2 %    indoor_flying1 six_dof:  49.8 %    indoor_flying1 six_dof:  53.3 %    indoor_flying1 six_dof:  56.9 %    indoor_flying1 six_dof:  60.4 %    indoor_flying1 six_dof:  64.0 %    indoor_flying1 six_dof:  67.5 %    indoor_flying1 six_dof:  71.1 %    indoor_flying1 six_dof:  74.6 %    indoor_flying1 six_dof:  78.2 %    indoor_flying1 six_dof:  81.7 %    indoor_flying1 six_dof:  85.3 %    indoor_flying1 six_dof:  88.8 %    indoor_flying1 six_dof:  92.4 %    indoor_flying1 six_dof:  96.0 %    indoor_flying1 six_dof:  99.5 %    indoor_flying1 six_dof: 100.0 %  (182 s)
+
+== indoor_flying1 / six_dof: 9,863,729 scored events (u finite for 99.4 %)
+   paper's Table 3 AREE: 53.65 %
+   rank correlation of u with |log TTC error|: +0.603   with 1/|mu_gt| (near-zero GT): +0.243   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   113.15   83.28  93.1%  1.752   1.028   13.8%  35.6%
+   confidence: most confident 75 %               24.9%    76.48   39.08  99.3%  0.557   0.408   30.6%  68.8%
+   confidence: most confident 50 %               49.7%    90.91   56.60  98.3%  0.837   0.610   21.6%  53.6%
+   confidence: most confident 25 %               74.6%   105.63   70.07  96.8%  1.131   0.787   17.3%  44.3%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       34.9%    65.60   80.03  95.6%  2.386   1.189   18.1%  40.2%
+   -- danger zone: GT TTC in (0, 5] s (21.7 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    56.24   47.45  93.4%  2.181   0.500   25.7%  54.5%
+   confidence: most confident 75 %               49.8%    27.65   22.66  99.5%  0.282   0.232   48.2%  94.1%
+   confidence: most confident 50 %               61.9%    32.44   27.23  98.0%  0.366   0.280   40.6%  85.7%
+   confidence: most confident 25 %               70.8%    39.00   31.12  95.3%  0.565   0.315   36.0%  76.3%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    56.24   47.45  93.4%  2.181   0.500   25.7%  54.5%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   six_dof / if1                53.65    113.15      90.91         65.60    1.752     0.837       13.8%        21.6%

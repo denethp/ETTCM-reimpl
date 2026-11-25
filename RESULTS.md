@@ -255,3 +255,136 @@ python scripts/tables45_mvsec.py --data ../datasets/MVSEC --seq all --model all 
 python scripts/table3_mvsec.py --data ../datasets/MVSEC                                                      # Table 3 + data checks
 python scripts/table3_mvsec.py --data ../datasets/MVSEC --seq indoor_flying3
 ```
+
+---
+
+# Our extension (not in the paper): per-event confidence + fairer TTC metrics
+
+**Confidence.** For every event, the Gauss–Newton step already builds the information matrix
+A = Ψ + L. Its inverse approximates the covariance of (θ, log ρ), so the uncertainty of
+log μ = log ρ + log|ν_z| follows by error propagation:
+σ² = gᵀ A⁻¹ g, g = (∂/∂ν_z, ∂/∂log ρ) = (1/ν_z, 1). We scale it by the neighbours' weighted
+mean squared residual r̄² (standard least-squares practice): **u = σ · r̄**. It costs two extra
+≤7×7 solves per event (`run_ettcm(..., confidence=True)`, ~25 % slower; off by default, and it
+changes no estimate: Table 2 is identical, `tests/test_confidence.py`). No ground truth is used,
+so "keep the most confident X %" can run online. The 1/ν_z term makes u large when the camera
+barely moves forward, which is exactly where the paper's relative error explodes (Table 3).
+
+**Metrics.** Besides the paper's AREE: sign accuracy; log-TTC error LTE = |ln(τ̂/τ)| (symmetric,
+grows only logarithmically when μ_gt ≈ 0); δ < 1.25 and δ < 2 (% of events with the right
+sign and within that factor of the GT TTC, as in depth estimation); and a danger zone (events with
+GT TTC ≤ 5 s).
+
+Run: `python scripts/novelty_mvsec.py --data ../datasets/MVSEC` (and `--dataset vl --data
+../datasets/VL`); full output in `novelty_mvsec_run.txt` and `novelty_vl_run.txt`.
+
+### MVSEC divergence (Table 3 settings), AREE % — all events vs the most confident events
+
+| Model | Sequence | Paper | All events | Most confident 50 % | Most confident 25 % | rank corr. of u with error |
+|---|---|---:|---:|---:|---:|---:|
+| Translation | indoor_flying1 | 19.82 | 66.77 | 43.05 | **33.98** | +0.27 |
+| | indoor_flying2 | 28.23 | 81.88 | 49.25 | **38.35** | +0.37 |
+| | outdoor_day1 | 45.78 | 54.31 | 47.60 | **45.46** | +0.31 |
+| 6-DOF | indoor_flying1 | 53.65 | 113.15 | 90.91 | **76.48** | +0.60 |
+| | indoor_flying2 | 56.12 | 120.27 | 125.56 | 125.15 | +0.76 |
+| | outdoor_day1 | 56.66 | 66.83 | 66.54 | 66.05 | +0.46 |
+| Driving | indoor_flying1 | 153.30 | 315.52 | 352.43 | 427.18 | +0.07 |
+| | indoor_flying2 | 84.80 | 212.16 | 200.22 | 253.72 | +0.21 |
+| | outdoor_day1 | 47.27 | 71.08 | 56.89 | **47.70** | +0.29 |
+
+### Same events, log-TTC error (LTE, lower is better) and δ < 1.25 (higher is better)
+
+| Model | Sequence | LTE all → top 25 % | δ<1.25 all → top 25 % |
+|---|---|---|---|
+| Translation | indoor_flying1 | 0.364 → 0.235 | 48.1 → 64.1 % |
+| | indoor_flying2 | 0.417 → 0.229 | 42.5 → 64.4 % |
+| | outdoor_day1 | 0.625 → 0.416 | 23.2 → 38.8 % |
+| 6-DOF | indoor_flying1 | 1.752 → 0.557 | 13.8 → 30.6 % |
+| | indoor_flying2 | 2.869 → 0.713 | 7.5 → 21.6 % |
+| | outdoor_day1 | 0.788 → 0.474 | 19.5 → 31.4 % |
+| Driving | outdoor_day1 | 0.529 → 0.341 | 32.2 → 49.7 % |
+
+**Findings**
+
+- **Translation** (the paper's best model): keeping the most confident events, chosen without
+  GT, roughly halves the indoor error (66.8 → 34.0, 81.9 → 38.4) and reaches the paper's value
+  outdoors (45.5 vs 45.8). LTE and δ<1.25 improve on every sequence.
+- **6-DOF:** u predicts the error best (rank correlation +0.46 to +0.76): LTE drops 3–4× indoors.
+  The paper's AREE improves on indoor_flying1 only; on the other two it stays flat although every
+  other metric improves — an example of AREE being dominated by a few near-zero-GT events.
+- **Driving:** helps on the car sequence (71.1 → 47.7, the paper's 47.3), not indoors: on a drone
+  the car model has the right sign for only ~49 % of events, and no confidence can fix a model
+  that does not fit.
+- **VL** (7 planar sequences, per-event GT = the global divergence): small gains for Translation
+  (average AREE 12.48 → 11.09, δ<1.25 81.2 → 86.0 % keeping the most confident 50 %), none for
+  Scaling / 6-DOF. There the time gaps between neighbours are tiny, so the data adds little
+  information about depth and u is close to the depth prior.
+- A GT-based exclusion (|μ_gt| ≥ 0.2 /s) is still better for Translation indoors, but needs the
+  answer; the confidence filter does not.
+
+---
+
+# Our extension 2 (not in the paper): causal median filter on the per-event estimates
+
+Each event with an estimate stores (t, μ, v) in a small ring buffer at its pixel (last 4). Its
+filtered estimate is the component-wise **median of all stored estimates in the 5 × 5 pixels
+around it that are at most 20 ms old**, itself included. Only past and current events are used
+(works online), the estimator is untouched (raw numbers = our Tables 3–5), and the settings
+(5 × 5, 20 ms, 4) were fixed before running. Paper settings otherwise (s = 3, l_θ = 100, 2 GN
+iterations). Script: `scripts/ext_filter_mvsec.py`; all numbers in `ext_filter_results.jsonl`
+(print them with `--summary ../ext_filter_results.jsonl`).
+
+The raw numbers come from the same run as the filtered ones. For Translation they equal our
+Table 4; for Driving and 6-DOF indoors they differ slightly (e.g. Driving indoor_flying2 2.56 vs
+2.47) because this script starts the estimator at the start of the scored window instead of the
+first grayscale frame. Raw vs filtered is always the same run.
+
+### Optical flow (Tables 4/5): raw → median-filtered
+
+| Model | Sequence | Paper AEE / Out | AEE (px) | Out (%) | AREE (%) | AAE (°) |
+|---|---|---|---|---|---|---|
+| Translation | indoor_flying1 | 0.63 / 0.41 | 0.66 → **0.64** | 0.87 → **0.77** | 56.6 → **54.8** | 13.66 → **13.19** |
+| | indoor_flying2 | 0.94 / 2.83 | 1.19 → **1.07** | 6.48 → **5.13** | 61.8 → **57.2** | 15.22 → **13.65** |
+| | indoor_flying3 | 0.79 / 1.65 | 0.94 → **0.87** | 3.69 → **2.85** | 50.8 → **48.0** | 12.12 → **11.04** |
+| | outdoor_day1 | 0.55 / 0.97 | 0.67 → **0.65** | 1.59 → **1.30** | 92.7 → **89.6** | 21.95 → **21.57** |
+| 6-DOF | indoor_flying1 | 0.88 / 1.97 | 0.84 → **0.81** | 1.79 → **1.64** | 77.1 → **74.1** | 19.86 → **18.80** |
+| | indoor_flying2 | 1.60 / 12.02 | 1.60 → **1.54** | 10.71 → **9.94** | 95.4 → **92.7** | 20.89 → **19.83** |
+| | indoor_flying3 | 1.38 / 9.99 | 1.37 → **1.32** | 8.46 → **8.05** | 84.0 → **81.4** | 20.94 → **20.00** |
+| | outdoor_day1 | 0.81 / 2.26 | 0.76 → **0.72** | 1.83 → **1.65** | 120.2 → **114.1** | 22.42 → **21.23** |
+| Driving | indoor_flying1 | 1.40 / 7.50 | 1.38 → 1.36 | 5.66 → 5.23 | 814 → 795 | 57.82 → 56.64 |
+| | indoor_flying2 | 2.42 / 26.32 | 2.56 → 2.55 | 31.79 → 31.59 | 807 → 817 | 62.47 → 61.93 |
+| | indoor_flying3 | 2.14 / 26.05 | 2.16 → 2.15 | 26.78 → 26.51 | 364 → 334 | 60.75 → 59.00 |
+| | outdoor_day1 | 0.39 / 0.12 | 0.59 → **0.57** | 1.25 → **0.99** | 87.3 → **85.3** | 15.11 → **14.90** |
+
+### Divergence (Table 3, AREE % per event, median in brackets): raw → median-filtered
+
+| Model | indoor_flying1 | indoor_flying2 | outdoor_day1 |
+|---|---|---|---|
+| Translation | 66.77 (23.82) → **64.58 (22.62)** | 81.88 (28.63) → **77.94 (27.36)** | 54.31 (44.00) → **53.80 (43.68)** |
+| 6-DOF | 113.15 (83.30) → **105.14 (82.39)** | 120.27 (95.73) → **116.08 (95.46)** | 66.83 (53.84) → **66.31** (54.03) |
+| Driving | 315.52 (120.23) → 315.58 (120.28) | 212.16 (103.35) → 212.38 (103.35) | 71.08 (35.99) → **70.20 (35.09)** |
+
+**Findings**
+
+- **Flow improves on all 12 sequence × model pairs** in AEE, Out and AAE (and AREE in 11 of 12).
+  Largest for Translation, the paper's best model: indoor_flying2 1.19 → 1.07 px (paper 0.94; our
+  best parameter sweep had reached 1.05), Out −21 to −23 % on indoor_flying2/3. Translation AAE
+  on indoor_flying3 (11.04°) and outdoor_day1 (21.57°), and 6-DOF AEE everywhere, are now at or
+  below the paper's values.
+- **Divergence improves for Translation and 6-DOF** (e.g. 6-DOF indoor_flying1 113 → 105 %), but
+  only a little: the remaining Table 3 gap is the near-zero-GT scoring problem, not noise (see the
+  confidence extension above).
+- **Driving indoors: no change.** On a drone the car model is wrong in the same way for all
+  neighbouring events, and a median only removes random outliers. On the car sequence (outdoor_day1),
+  where the model fits, it helps slightly.
+
+### Tried and rejected: more Gauss–Newton iterations (paper: 2)
+
+On indoor_flying2: Translation with 3 iterations diverges (flow AEE 1.19 → 48.9 px, divergence
+AREE 82 → 2982 %); Driving is unchanged with 3 or 5 (AEE 2.56, already converged). The other
+3/5-iteration runs were stopped. The paper's 2 iterations are the right choice: with only a few
+neighbours per event, extra steps fit the noise.
+
+Also tried and dropped (no gain): weighting the VL global divergence by the confidence (Table 2
+slightly worse in 4 of 6 rows), and using the confidence to filter optical flow (better flow
+direction, worse pixel error).

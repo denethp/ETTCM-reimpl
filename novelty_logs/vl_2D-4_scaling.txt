@@ -1,0 +1,21 @@
+
+== 2D-4 / scaling: 4,045,330 scored events (u finite for 84.5 %)
+   rank correlation of u with |log TTC error|: +0.003   with 1/|mu_gt| (near-zero GT): +0.111   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    12.13    9.29 100.0%  0.117   0.093   86.5% 100.0%
+   confidence: most confident 75 %               21.1%    12.25    9.29 100.0%  0.115   0.092   87.2% 100.0%
+   confidence: most confident 50 %               42.2%    12.29    9.39 100.0%  0.117   0.093   86.8% 100.0%
+   confidence: most confident 25 %               63.4%    12.26    9.42 100.0%  0.117   0.094   86.5% 100.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   -- danger zone: GT TTC in (0, 5] s (0.0 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                         0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 75 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 50 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   confidence: most confident 25 %                0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)        0.0%      nan     nan   nan%    nan     nan    nan%   nan%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   scaling / 2D-4                 nan     12.13      12.29           nan    0.117     0.117       86.5%        86.8%

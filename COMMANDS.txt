@@ -144,7 +144,40 @@ plus ground-truth data checks.
     # to regenerate the saved figures, change --out to ../figures/<same name>.png
 
 
-8. SAVE WHAT A SCRIPT PRINTS
+8. NOVELTY (our addition, not in the paper): confidence + fairer TTC metrics
+---------------------------------------------------------------------------
+Per-event confidence from the Gauss-Newton matrix, and new metrics (sign accuracy,
+log-TTC error, delta<1.25 / delta<2, danger zone). Compares "all events" with
+"most confident X %" (no ground truth used to pick them).
+
+    # VL, works without the SSD (one model ~7 min, all 3 models ~20 min)
+    python scripts/novelty_mvsec.py --dataset vl --data ../datasets/VL --model translation
+    python scripts/novelty_mvsec.py --dataset vl --data ../datasets/VL --seq 2D-4 --model translation   # ~1 min
+
+    # MVSEC (needs the SSD connected)
+    python scripts/novelty_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation --max-seconds 10
+    python scripts/novelty_mvsec.py --data ../datasets/MVSEC --seq indoor_flying1 --model translation
+    python scripts/novelty_mvsec.py --data ../datasets/MVSEC                 # 3 sequences x 3 models (long)
+
+    # options: --danger 5 (danger zone: GT TTC <= 5 s)   --cache DIR (reuse results, re-score fast)
+
+    # unit test for the confidence code
+    python tests/test_confidence.py
+
+
+9. EXTENSION 2: median filter on the TTC / flow estimates (MVSEC, needs the SSD)
+---------------------------------------------------------------------------------
+Runs the estimator once and scores Tables 3, 4, 5 raw and median-filtered.
+
+    python scripts/ext_filter_mvsec.py --data ../datasets/MVSEC --seq indoor_flying2 --model translation --max-seconds 10   # quick try
+    python scripts/ext_filter_mvsec.py --data ../datasets/MVSEC --seq indoor_flying2 --model translation   # full (appends to ../ext_filter_results.jsonl)
+    python scripts/ext_filter_mvsec.py --summary ../ext_filter_results.jsonl                                # print the saved tables
+
+    # options: --seq indoor_flying1|indoor_flying2|indoor_flying3|outdoor_day1
+    #          --model driving|translation|six_dof   --iters 2 (paper; 3 and 5 were tried: worse)
+
+
+10. SAVE WHAT A SCRIPT PRINTS
 ----------------------------
 Add  | tee <file>  to any command, e.g.
 

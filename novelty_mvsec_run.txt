@@ -1,0 +1,187 @@
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_indoor_flying1_driving_s3.npz)
+
+== indoor_flying1 / driving: 9,863,729 scored events (u finite for 99.3 %)
+   paper's Table 3 AREE: 153.30 %
+   rank correlation of u with |log TTC error|: +0.070   with 1/|mu_gt| (near-zero GT): -0.112   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   315.52  120.13  47.8%  1.103   0.985    5.9%  17.2%
+   confidence: most confident 75 %               74.5%   311.65  121.50  47.9%  1.071   0.960    6.1%  17.7%
+   confidence: most confident 50 %               49.7%   352.43  126.99  50.3%  1.039   0.929    6.7%  19.3%
+   confidence: most confident 25 %               24.8%   427.18  143.98  53.9%  1.031   0.927    7.2%  20.7%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       34.9%   126.30  112.75  38.0%  1.617   1.622    1.6%   4.9%
+   -- danger zone: GT TTC in (0, 5] s (21.7 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   148.86  124.30   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 75 %               74.0%   151.26  125.37   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 50 %               40.4%   164.41  131.77   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 25 %               14.0%   196.26  161.73   0.0%    nan     nan    0.0%   0.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%   148.86  124.30   0.0%    nan     nan    0.0%   0.0%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_indoor_flying1_translation_s3.npz)
+
+== indoor_flying1 / translation: 9,863,729 scored events (u finite for 99.4 %)
+   paper's Table 3 AREE: 19.82 %
+   rank correlation of u with |log TTC error|: +0.274   with 1/|mu_gt| (near-zero GT): +0.528   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    66.77   23.82  98.6%  0.364   0.230   48.1%  84.2%
+   confidence: most confident 75 %               74.6%    50.14   20.68  99.8%  0.304   0.204   53.4%  89.5%
+   confidence: most confident 50 %               49.7%    43.05   18.61  99.8%  0.272   0.183   57.8%  91.7%
+   confidence: most confident 25 %               24.9%    33.98   16.05  99.9%  0.235   0.157   64.1%  94.2%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       34.9%    18.24   13.80 100.0%  0.184   0.138   71.6%  97.9%
+   -- danger zone: GT TTC in (0, 5] s (21.7 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    16.13   12.29 100.0%  0.175   0.124   75.9%  97.2%
+   confidence: most confident 75 %               89.5%    14.87   11.87 100.0%  0.154   0.120   78.1%  98.9%
+   confidence: most confident 50 %               73.8%    13.92   11.21 100.0%  0.141   0.112   81.3%  99.4%
+   confidence: most confident 25 %               47.4%    12.91   10.32 100.0%  0.127   0.103   85.8%  99.5%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    16.13   12.29 100.0%  0.175   0.124   75.9%  97.2%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_indoor_flying1_six_dof_s3.npz)
+
+== indoor_flying1 / six_dof: 9,863,729 scored events (u finite for 99.4 %)
+   paper's Table 3 AREE: 53.65 %
+   rank correlation of u with |log TTC error|: +0.603   with 1/|mu_gt| (near-zero GT): +0.243   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   113.15   83.28  93.1%  1.752   1.028   13.8%  35.6%
+   confidence: most confident 75 %               74.6%   105.63   70.07  96.8%  1.131   0.787   17.3%  44.3%
+   confidence: most confident 50 %               49.7%    90.91   56.60  98.3%  0.837   0.610   21.6%  53.6%
+   confidence: most confident 25 %               24.9%    76.48   39.08  99.3%  0.557   0.408   30.6%  68.8%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       34.9%    65.60   80.03  95.6%  2.386   1.189   18.1%  40.2%
+   -- danger zone: GT TTC in (0, 5] s (21.7 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    56.24   47.45  93.4%  2.181   0.500   25.7%  54.5%
+   confidence: most confident 75 %               70.8%    39.00   31.12  95.3%  0.565   0.315   36.0%  76.3%
+   confidence: most confident 50 %               61.9%    32.44   27.23  98.0%  0.366   0.280   40.6%  85.7%
+   confidence: most confident 25 %               49.8%    27.65   22.66  99.5%  0.282   0.232   48.2%  94.1%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    56.24   47.45  93.4%  2.181   0.500   25.7%  54.5%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_indoor_flying2_driving_s3.npz)
+
+== indoor_flying2 / driving: 17,971,063 scored events (u finite for 99.5 %)
+   paper's Table 3 AREE: 84.80 %
+   rank correlation of u with |log TTC error|: +0.210   with 1/|mu_gt| (near-zero GT): -0.158   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   212.16  103.35  49.4%  2.099   2.070    3.0%   9.0%
+   confidence: most confident 75 %               74.6%   180.01  103.44  49.1%  2.072   2.019    3.1%   9.2%
+   confidence: most confident 50 %               49.7%   200.22  104.28  49.1%  1.828   1.677    3.7%  11.1%
+   confidence: most confident 25 %               24.9%   253.72  107.30  49.4%  1.504   1.340    4.5%  13.9%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       60.8%   112.69  102.61  48.4%  2.812   2.955    0.6%   2.0%
+   -- danger zone: GT TTC in (0, 5] s (31.4 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   134.76  109.76   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 75 %               76.4%   137.70  110.19   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 50 %               46.8%   148.65  112.06   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 25 %               19.8%   175.61  117.40   0.0%    nan     nan    0.0%   0.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%   134.76  109.76   0.0%    nan     nan    0.0%   0.0%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_indoor_flying2_translation_s3.npz)
+
+== indoor_flying2 / translation: 17,971,063 scored events (u finite for 99.6 %)
+   paper's Table 3 AREE: 28.23 %
+   rank correlation of u with |log TTC error|: +0.367   with 1/|mu_gt| (near-zero GT): +0.471   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    81.88   28.66  97.6%  0.417   0.269   42.5%  80.4%
+   confidence: most confident 75 %               74.7%    65.20   23.84  99.6%  0.344   0.231   48.5%  87.1%
+   confidence: most confident 50 %               49.8%    49.25   19.60  99.8%  0.286   0.192   55.8%  91.3%
+   confidence: most confident 25 %               24.9%    38.35   15.97  99.8%  0.229   0.158   64.4%  94.8%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       60.8%    29.44   19.03  99.7%  0.258   0.188   56.7%  94.4%
+   -- danger zone: GT TTC in (0, 5] s (31.4 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    22.45   15.70  99.5%  0.229   0.159   63.6%  94.9%
+   confidence: most confident 75 %               87.1%    18.96   14.37  99.9%  0.186   0.147   68.3%  98.7%
+   confidence: most confident 50 %               68.7%    17.76   13.60 100.0%  0.173   0.138   71.0%  99.3%
+   confidence: most confident 25 %               39.8%    17.24   13.12 100.0%  0.167   0.134   72.2%  99.6%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    22.45   15.70  99.5%  0.229   0.159   63.6%  94.9%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_indoor_flying2_six_dof_s3.npz)
+
+== indoor_flying2 / six_dof: 17,971,063 scored events (u finite for 99.6 %)
+   paper's Table 3 AREE: 56.12 %
+   rank correlation of u with |log TTC error|: +0.762   with 1/|mu_gt| (near-zero GT): +0.186   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   120.27   95.73  90.4%  2.869   2.352    7.5%  21.8%
+   confidence: most confident 75 %               74.7%   123.80   90.39  92.3%  2.043   1.604    9.8%  28.5%
+   confidence: most confident 50 %               49.8%   125.56   78.01  91.7%  1.353   0.894   13.6%  39.2%
+   confidence: most confident 25 %               24.9%   125.15   45.43  93.4%  0.713   0.480   21.6%  61.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       60.8%    87.15   96.45  91.4%  3.263   2.898    7.8%  22.0%
+   -- danger zone: GT TTC in (0, 5] s (31.4 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    77.33   97.36  94.6%  3.527   3.048   11.5%  32.5%
+   confidence: most confident 75 %               68.4%    67.22   69.29  95.1%  1.943   0.701   16.8%  47.3%
+   confidence: most confident 50 %               47.3%    54.67   39.52  94.7%  0.862   0.430   23.7%  66.7%
+   confidence: most confident 25 %               35.5%    42.60   32.82  97.6%  0.430   0.359   29.3%  83.4%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    77.33   97.36  94.6%  3.527   3.048   11.5%  32.5%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_outdoor_day1_driving_s3.npz)
+
+== outdoor_day1 / driving: 3,217,304 scored events (u finite for 99.7 %)
+   paper's Table 3 AREE: 47.27 %
+   rank correlation of u with |log TTC error|: +0.289   with 1/|mu_gt| (near-zero GT): +0.396   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    71.08   36.03 100.0%  0.529   0.384   32.2%  72.6%
+   confidence: most confident 75 %               74.8%    66.43   32.30 100.0%  0.484   0.341   35.7%  76.2%
+   confidence: most confident 50 %               49.9%    56.89   26.90 100.0%  0.410   0.279   42.1%  82.3%
+   confidence: most confident 25 %               24.9%    47.70   22.31 100.0%  0.341   0.225   49.7%  87.5%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       81.1%    36.35   28.85 100.0%  0.408   0.304   38.6%  84.3%
+   -- danger zone: GT TTC in (0, 5] s (81.1 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    36.35   28.85 100.0%  0.408   0.304   38.6%  84.3%
+   confidence: most confident 75 %               77.3%    34.92   26.56 100.0%  0.369   0.277   41.8%  87.1%
+   confidence: most confident 50 %               55.2%    33.51   23.63 100.0%  0.323   0.243   46.7%  90.1%
+   confidence: most confident 25 %               29.5%    33.85   21.08 100.0%  0.294   0.212   51.8%  91.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    36.35   28.85 100.0%  0.408   0.304   38.6%  84.3%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_outdoor_day1_translation_s3.npz)
+
+== outdoor_day1 / translation: 3,217,304 scored events (u finite for 99.7 %)
+   paper's Table 3 AREE: 45.78 %
+   rank correlation of u with |log TTC error|: +0.311   with 1/|mu_gt| (near-zero GT): +0.224   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    54.31   44.07  97.4%  0.625   0.491   23.2%  64.9%
+   confidence: most confident 75 %               74.8%    50.77   39.66  99.2%  0.545   0.446   26.8%  70.6%
+   confidence: most confident 50 %               49.8%    47.60   34.91  99.7%  0.485   0.386   31.5%  75.6%
+   confidence: most confident 25 %               24.9%    45.46   28.76 100.0%  0.416   0.308   38.8%  81.9%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       81.1%    42.81   40.22  98.4%  0.603   0.467   25.9%  66.6%
+   -- danger zone: GT TTC in (0, 5] s (81.1 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    42.81   40.22  98.4%  0.603   0.467   25.9%  66.6%
+   confidence: most confident 75 %               77.4%    39.47   36.36  99.5%  0.520   0.413   29.5%  72.6%
+   confidence: most confident 50 %               54.4%    36.72   32.25  99.8%  0.452   0.356   34.0%  78.2%
+   confidence: most confident 25 %               28.8%    34.10   27.11 100.0%  0.380   0.289   40.7%  84.5%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    42.81   40.22  98.4%  0.603   0.467   25.9%  66.6%
+   (cached /tmp/claude-1000/-home-lasan-perera-ettcm-project/e916648b-cb6d-4d1f-a27b-c13fa0cc82ea/scratchpad/novcache/mvsec_outdoor_day1_six_dof_s3.npz)
+
+== outdoor_day1 / six_dof: 3,217,302 scored events (u finite for 99.7 %)
+   paper's Table 3 AREE: 56.66 %
+   rank correlation of u with |log TTC error|: +0.460   with 1/|mu_gt| (near-zero GT): +0.184   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    66.83   53.95  98.2%  0.788   0.618   19.5%  53.8%
+   confidence: most confident 75 %               74.8%    65.69   45.88  99.7%  0.611   0.505   23.8%  63.9%
+   confidence: most confident 50 %               49.8%    66.54   38.78 100.0%  0.519   0.411   28.8%  72.3%
+   confidence: most confident 25 %               24.9%    66.05   35.90 100.0%  0.474   0.367   31.4%  77.1%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       81.1%    51.75   50.72  98.8%  0.778   0.593   20.7%  55.8%
+   -- danger zone: GT TTC in (0, 5] s (81.1 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%    51.75   50.72  98.8%  0.778   0.593   20.7%  55.8%
+   confidence: most confident 75 %               77.3%    45.22   41.21  99.8%  0.563   0.455   26.1%  68.6%
+   confidence: most confident 50 %               54.0%    41.22   33.70 100.0%  0.429   0.352   32.6%  80.9%
+   confidence: most confident 25 %               27.8%    41.95   32.04 100.0%  0.387   0.326   34.6%  84.9%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%    51.75   50.72  98.8%  0.778   0.593   20.7%  55.8%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   driving / if1               153.30    315.52     352.43        126.30    1.103     1.039        5.9%         6.7%
+   translation / if1            19.82     66.77      43.05         18.24    0.364     0.272       48.1%        57.8%
+   six_dof / if1                53.65    113.15      90.91         65.60    1.752     0.837       13.8%        21.6%
+   driving / if2                84.80    212.16     200.22        112.69    2.099     1.828        3.0%         3.7%
+   translation / if2            28.23     81.88      49.25         29.44    0.417     0.286       42.5%        55.8%
+   six_dof / if2                56.12    120.27     125.56         87.15    2.869     1.353        7.5%        13.6%
+   driving / od1                47.27     71.08      56.89         36.35    0.529     0.410       32.2%        42.1%
+   translation / od1            45.78     54.31      47.60         42.81    0.625     0.485       23.2%        31.5%
+   six_dof / od1                56.66     66.83      66.54         51.75    0.788     0.519       19.5%        28.8%
+   -- average over the sequences
+   driving                      95.12    199.59     203.18         91.78    1.243     1.092       13.7%        17.5%
+   translation                  31.28     67.65      46.63         30.16    0.469     0.348       37.9%        48.4%
+   six_dof                      55.48    100.08      94.33         68.17    1.803     0.903       13.6%        21.3%

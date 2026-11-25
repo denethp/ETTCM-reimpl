@@ -1,0 +1,23 @@
+    indoor_flying2 driving:   2.0 %    indoor_flying2 driving:   4.0 %    indoor_flying2 driving:   6.0 %    indoor_flying2 driving:   8.0 %    indoor_flying2 driving:  10.0 %    indoor_flying2 driving:  12.0 %    indoor_flying2 driving:  14.0 %    indoor_flying2 driving:  16.0 %    indoor_flying2 driving:  18.0 %    indoor_flying2 driving:  20.0 %    indoor_flying2 driving:  22.0 %    indoor_flying2 driving:  24.0 %    indoor_flying2 driving:  26.0 %    indoor_flying2 driving:  28.0 %    indoor_flying2 driving:  30.0 %    indoor_flying2 driving:  31.9 %    indoor_flying2 driving:  33.9 %    indoor_flying2 driving:  35.9 %    indoor_flying2 driving:  37.9 %    indoor_flying2 driving:  39.9 %    indoor_flying2 driving:  41.9 %    indoor_flying2 driving:  43.9 %    indoor_flying2 driving:  45.9 %    indoor_flying2 driving:  47.9 %    indoor_flying2 driving:  49.9 %    indoor_flying2 driving:  51.9 %    indoor_flying2 driving:  53.9 %    indoor_flying2 driving:  55.9 %    indoor_flying2 driving:  57.9 %    indoor_flying2 driving:  59.9 %    indoor_flying2 driving:  61.9 %    indoor_flying2 driving:  63.9 %    indoor_flying2 driving:  65.9 %    indoor_flying2 driving:  67.9 %    indoor_flying2 driving:  69.9 %    indoor_flying2 driving:  71.9 %    indoor_flying2 driving:  73.9 %    indoor_flying2 driving:  75.9 %    indoor_flying2 driving:  77.9 %    indoor_flying2 driving:  79.9 %    indoor_flying2 driving:  81.9 %    indoor_flying2 driving:  83.9 %    indoor_flying2 driving:  85.9 %    indoor_flying2 driving:  87.9 %    indoor_flying2 driving:  89.9 %    indoor_flying2 driving:  91.8 %    indoor_flying2 driving:  93.8 %    indoor_flying2 driving:  95.8 %    indoor_flying2 driving:  97.8 %    indoor_flying2 driving:  99.8 %    indoor_flying2 driving: 100.0 %  (214 s)
+
+== indoor_flying2 / driving: 17,971,063 scored events (u finite for 99.5 %)
+   paper's Table 3 AREE: 84.80 %
+   rank correlation of u with |log TTC error|: +0.210   with 1/|mu_gt| (near-zero GT): -0.158   (+1 = perfect)
+   -- all events
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   212.16  103.35  49.4%  2.099   2.070    3.0%   9.0%
+   confidence: most confident 75 %               24.9%   253.72  107.30  49.4%  1.504   1.340    4.5%  13.9%
+   confidence: most confident 50 %               49.7%   200.22  104.28  49.1%  1.828   1.677    3.7%  11.1%
+   confidence: most confident 25 %               74.6%   180.01  103.44  49.1%  2.072   2.019    3.1%   9.2%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)       60.8%   112.69  102.61  48.4%  2.812   2.955    0.6%   2.0%
+   -- danger zone: GT TTC in (0, 5] s (31.4 % of events)
+                                                  kept     AREE  median   sign    LTE  LTEmed  d<1.25    d<2
+   no filter (all events)                       100.0%   134.76  109.76   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 75 %               19.8%   175.61  117.40   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 50 %               46.8%   148.65  112.06   0.0%    nan     nan    0.0%   0.0%
+   confidence: most confident 25 %               76.4%   137.70  110.19   0.0%    nan     nan    0.0%   0.0%
+   GT-based: |mu_gt| >= 0.2 /s  (needs GT)      100.0%   134.76  109.76   0.0%    nan     nan    0.0%   0.0%
+
+== Summary (all events vs the most confident 50 %, chosen without GT)
+                                paper  AREE all  AREE conf  AREE GT>=0.2  LTE all  LTE conf  d<1.25 all  d<1.25 conf
+   driving / if2                84.80    212.16     200.22        112.69    2.099     1.828        3.0%         3.7%

@@ -58,10 +58,34 @@ def _kernel(x, use_fast_exp):
 
 
 @njit
+def _log_mu_var(A, nm, i_nu, i_lam, nu_z, e, col_nu, col_lam, Lw):
+    """Variance of log|mu| = lambda + log|nu_z| from the Gauss-Newton system (NOVELTY, not in the paper).
+
+    A = Psi + L is the information matrix of gamma at the last Gauss-Newton step, so
+    C = A^-1 approximates the covariance of gamma (unit residual noise). By first-order error
+    propagation, var(log mu) = C_ll + C_nn / nu_z^2 + 2 C_ln / nu_z. Only two columns of C are
+    needed (two extra small solves per event). Returns +inf when it cannot be computed.
+    """
+    if nu_z == 0.0:
+        return math.inf
+    for i in range(nm):
+        e[i] = 0.0
+    e[i_lam] = 1.0
+    if not cholesky_solve(A, e, nm, col_lam, Lw):
+        return math.inf
+    e[i_lam] = 0.0
+    e[i_nu] = 1.0
+    if not cholesky_solve(A, e, nm, col_nu, Lw):
+        return math.inf
+    v = col_lam[i_lam] + col_nu[i_nu] / (nu_z * nu_z) + 2.0 * col_lam[i_nu] / nu_z
+    return v if v > 0.0 else 0.0
+
+
+@njit
 def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
          fx, fy, cx, cy, model, s, w_thresh, l_theta, l_rho, n_iter, d_min,
          use_fast_exp, ctx_t, ctx_w, rho_map, theta, st_f, st_i,
-         out_rho, out_vx, out_vy, out_div, out_theta):
+         out_rho, out_vx, out_vy, out_div, out_theta, out_var, out_res2, want_var):
     # State carried between calls (see EttcmState): ctx_t, ctx_w, rho_map,
     # theta (motion), st_f = (a, div_num, div_den), st_i = (t_last,).
     nv = n_v(model)        # number of linear-velocity params; nu_z = theta[nv - 1]
@@ -78,6 +102,9 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     rhs = np.zeros(7)
     delta = np.zeros(7)
     Lw = np.zeros((7, 7))
+    e_unit = np.zeros(7)
+    col_nu = np.zeros(7)
+    col_lam = np.zeros(7)
     prior = np.full(nm, l_theta)  # L = diag(l_theta, ..., l_theta, l_rho)
     prior[nvar] = l_rho
 
@@ -119,6 +146,8 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
             x1 = -1
 
         rho = 0.0   # stays 0 if the window is empty -> event ignored for divergence
+        var_k = math.inf    # novelty: variance of log(mu) (inf = no estimate)
+        res2_k = math.inf   # novelty: weighted mean squared residual (px^2)
         if x1 >= x0 and y1 >= y0:
             # ---- 2. Inverse-depth initialisation (Sec. 3.5, Eq. 11) ----------
             # Weighted mean of the neighbours' rho; recent neighbours weigh more.
@@ -141,12 +170,14 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                 gamma0[m] = gamma[m]
 
             # ---- 3. Gauss-Newton on gamma = (theta, log rho), Eq. (8) --------
+            solved = False
             for it in range(n_iter):
                 for i in range(nm):
                     psi[i] = 0.0
                     for j in range(nm):
                         Psi[i, j] = 0.0
                 w_sum = 0.0
+                r2w = 0.0
                 for yy in range(y0, y1 + 1):
                     for xx in range(x0, x1 + 1):
                         dt = t - ctx_t[c, yy, xx]
@@ -177,12 +208,14 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                             J[1, nvar] = -dt * tvy
                             w = ctx_w[c, yy, xx] * _kernel(-0.5 * (r0 * r0 + r1 * r1), use_fast_exp)
                             w_sum += w
+                            r2w += w * (r0 * r0 + r1 * r1)
                             for i in range(nm):
                                 psi[i] += w * (J[0, i] * r0 + J[1, i] * r1)
                                 for j in range(nm):
                                     Psi[i, j] += w * (J[0, i] * J[0, j] + J[1, i] * J[1, j])
                 if w_sum <= 0:
                     break
+                res2_k = r2w / w_sum
 
                 # ---- 4. Solve (Psi + L) delta = -psi + L (gamma0 - gamma) ----
                 for i in range(nm):
@@ -192,6 +225,7 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                     rhs[i] = -psi[i] + prior[i] * (gamma0[i] - gamma[i])
                 if not cholesky_solve(A, rhs, nm, delta, Lw):
                     break
+                solved = True
                 dn = 0.0
                 for i in range(nm):
                     gamma[i] += delta[i]
@@ -208,6 +242,9 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                         gamma[m] /= vn
                 if math.sqrt(dn) < d_min:
                     break
+            if solved and want_var:   # A still holds Psi + L of the last Gauss-Newton step
+                var_k = _log_mu_var(A, nm, nv - 1, nvar, gamma[nv - 1], e_unit, col_nu,
+                                    col_lam, Lw)
             for m in range(nvar):
                 theta[m] = gamma[m]
             rho_map[y_raw[k], x_raw[k]] = rho
@@ -233,6 +270,8 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
         out_div[k] = div_num / div_den if div_den > 0 else 0.0
         for m in range(nvar):
             out_theta[k, m] = theta[m]
+        out_var[k] = var_k
+        out_res2[k] = res2_k
 
     st_i[0] = t_last
     st_f[0] = a
@@ -244,7 +283,8 @@ def _run(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
 def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                fx, fy, cx, cy, s, w_thresh, l_theta, l_rho, n_iter, d_min,
                use_fast_exp, ctx_t, ctx_w, rho_map, mv, st_f, st_i,
-               out_rho, out_vx, out_vy, out_div, out_theta, consistent_jac):
+               out_rho, out_vx, out_vy, out_div, out_theta, out_var, out_res2,
+               want_var, consistent_jac):
     """6-DOF with the official re-parameterisation (ParameterizedSixDOF).
 
     Same five steps as _run, written in the official code's sign convention
@@ -274,6 +314,9 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
     rhs = np.zeros(7)
     delta = np.zeros(7)
     Lw = np.zeros((7, 7))
+    e_unit = np.zeros(7)
+    col_nu = np.zeros(7)
+    col_lam = np.zeros(7)
     prior = np.full(nm, l_theta)
     prior[6] = l_rho
     t_last = st_i[0]
@@ -308,6 +351,8 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
             x1 = -1
 
         rho = 0.0
+        var_k = math.inf
+        res2_k = math.inf
         if x1 >= x0 and y1 >= y0:
             num = 0.0
             den = 0.0
@@ -327,12 +372,14 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
             for m in range(nm):
                 mv0[m] = mv[m]
 
+            solved = False
             for it in range(n_iter):
                 for i in range(nm):
                     psi[i] = 0.0
                     for j in range(nm):
                         Psi[i, j] = 0.0
                 w_sum = 0.0
+                r2w = 0.0
                 for yy in range(y0, y1 + 1):
                     for xx in range(x0, x1 + 1):
                         dt = t - ctx_t[c, yy, xx]
@@ -369,12 +416,14 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                             r1 = (yr[k] - vj) - dt * fvy
                             w = ctx_w[c, yy, xx] * _kernel(-0.5 * (r0 * r0 + r1 * r1), use_fast_exp)
                             w_sum += w
+                            r2w += w * (r0 * r0 + r1 * r1)
                             for i in range(nm):
                                 psi[i] += w * (J[0, i] * r0 + J[1, i] * r1)
                                 for j in range(nm):
                                     Psi[i, j] += w * (J[0, i] * J[0, j] + J[1, i] * J[1, j])
                 if w_sum <= 0:
                     break
+                res2_k = r2w / w_sum
                 for i in range(nm):
                     for j in range(nm):
                         A[i, j] = Psi[i, j]
@@ -382,6 +431,7 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                     rhs[i] = -psi[i] + prior[i] * (mv0[i] - mv[i])
                 if not cholesky_solve(A, rhs, nm, delta, Lw):
                     break
+                solved = True
                 dn = 0.0
                 for i in range(nm):
                     mv[i] += delta[i]
@@ -400,6 +450,8 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
                     mv[2] = v3[2]
                 if math.sqrt(dn) < d_min:
                     break
+            if solved and want_var:   # nu_z = m2 (code sign; only |nu_z| matters), lambda = mv[6]
+                var_k = _log_mu_var(A, nm, 2, 6, mv[2], e_unit, col_nu, col_lam, Lw)
             rho_map[y_raw[k], x_raw[k]] = rho
 
         b_matrix_param(px, py, fx, fy, rho, B)
@@ -426,6 +478,8 @@ def _run_param(t_us, x_raw, y_raw, pol, xr, yr, cam_map, width, height,
         out_theta[k, 3] = -mv[3]
         out_theta[k, 4] = -mv[4]
         out_theta[k, 5] = -mv[5]
+        out_var[k] = var_k
+        out_res2[k] = res2_k
 
     st_i[0] = t_last
     st_f[0] = a
@@ -451,7 +505,7 @@ class EttcmState:
 
 def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
               l_rho=1.0, n_iter=2, d_min=1e-4, fast_exp=True, state=None,
-              six_dof_jacobian="official"):
+              six_dof_jacobian="official", confidence=False):
     """Run the estimator on a (rectified) event stream.
 
     fast_exp=True uses the official build's approximate exp() for the residual
@@ -462,10 +516,15 @@ def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
     six_dof_jacobian: "official" (as the C++, used for the paper's Table 2) or
     "consistent" (the true derivative of the model; see _run_param).
     Event timestamps must keep increasing across calls that share a state.
+    confidence=True also computes the per-event uncertainty "sigma" (novelty, see below);
+    it costs ~25 % more time and leaves every other output unchanged.
 
     Returns a dict of per-event arrays: rho, vx, vy (px/s), div (global divergence
     1/s, paper sign), mu = rho*nu_z (per-event divergence), ttc = 1/mu,
-    theta (N, n_vars).
+    theta (N, n_vars), and (novelty, not in the paper; does not change any estimate):
+    sigma = standard deviation of log|mu| from the Gauss-Newton information matrix
+    (only with confidence=True; inf = no estimate or not computed; |log| errors of TTC and mu are the same, so it is also the
+    relative uncertainty of the TTC), res2 = weighted mean squared residual (px^2).
     """
     if state is None:
         state = EttcmState(cam.width, cam.height)
@@ -475,23 +534,25 @@ def run_ettcm(events, xr, yr, cam, model, s=2, w_thresh=0.01, l_theta=1000.0,
     out_vy = np.zeros(n)
     out_div = np.zeros(n)
     out_theta = np.zeros((n, n_vars(model)))
+    out_var = np.zeros(n)
+    out_res2 = np.zeros(n)
     args = (events["t"].astype(np.int64), events["x"].astype(np.int64),
             events["y"].astype(np.int64), events["p"].astype(np.bool_),
             xr.astype(np.float64), yr.astype(np.float64), cam.map.astype(np.float64),
             cam.width, cam.height, cam.fx, cam.fy, cam.cx, cam.cy)
     hyper = (int(s), float(w_thresh), float(l_theta), float(l_rho), int(n_iter),
              float(d_min), bool(fast_exp))
-    outs = (out_rho, out_vx, out_vy, out_div, out_theta)
+    outs = (out_rho, out_vx, out_vy, out_div, out_theta, out_var, out_res2)
     if model == SIX_DOF:
         _run_param(*args, *hyper, state.ctx_t, state.ctx_w, state.rho_map,
-                   state.motion, state.st_f, state.st_i, *outs,
+                   state.motion, state.st_f, state.st_i, *outs, bool(confidence),
                    {"official": False, "consistent": True}[six_dof_jacobian])
     else:
         _run(*args, model, *hyper, state.ctx_t, state.ctx_w, state.rho_map,
-             state.motion[:n_vars(model)], state.st_f, state.st_i, *outs)
+             state.motion[:n_vars(model)], state.st_f, state.st_i, *outs, bool(confidence))
     nu_z = out_theta[:, n_v(model) - 1]
     mu = out_rho * nu_z
     with np.errstate(divide="ignore"):
         ttc = 1.0 / mu
     return dict(rho=out_rho, vx=out_vx, vy=out_vy, div=out_div, mu=mu, ttc=ttc,
-                theta=out_theta)
+                theta=out_theta, sigma=np.sqrt(out_var), res2=out_res2)
